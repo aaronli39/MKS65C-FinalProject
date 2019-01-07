@@ -36,6 +36,7 @@ int calculate(int length, int density) {
         }
         printf("\n");
     }
+    printf("\n");
 
     while (num_fire) {
         int * temp_locations = (int *)malloc(length*length*3);
