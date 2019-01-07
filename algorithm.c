@@ -27,11 +27,15 @@ int calculate(int length, int density) {
     // Test print of the entire map
     for (i = 0; i < length; i++) {
         for (j = 0; j < length; j++) {
-            printf("%d,",map[i][j]);
+            if (map[i][j] == 0){
+                printf(" ,");
+            }
+            else{
+                printf("%d,",map[i][j]);
+            }
         }
         printf("\n");
     }
-    printf("\n");
 
     while (num_fire) {
         int * temp_locations = (int *)malloc(length*length*3);
@@ -88,8 +92,8 @@ int calculate(int length, int density) {
 }
 
 int main() {
-    //int seed = time(NULL);
-    srand(1546892972);
-    //printf("%d\n",seed);
+    int seed = time(NULL);
+    srand(seed);
+    printf("seed: %d\n",seed);
     printf("%d\n",calculate(30,65));
 }
