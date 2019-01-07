@@ -37,33 +37,29 @@ int calculate(int length, int density) {
         int * temp_locations = (int *)malloc(length*length*3);
         temp_locations[0] = '\0';
         int num_temp = 0;
-        printf("start fire\n");
-        for (i = 0; i < num_fire; i++){
-            int row = fire_locations[2*i];
-            int col = fire_locations[2*i + 1];
+        int k;
+        for (k = 0; k < num_fire; k++){
+            int row = fire_locations[2*k];
+            int col = fire_locations[2*k + 1];
             map[row][col] = 0;
-            printf("start fire 1\n");
             if (row != 0 && map[row-1][col]==1){
                 temp_locations[2*num_temp] = row - 1;
                 temp_locations[2*num_temp + 1] = col;
                 map[row-1][col] = 2;
                 num_temp++;
             }
-            printf("start fire 2\n");
             if (row != length && map[row+1][col]==1){
                 temp_locations[2*num_temp] = row + 1;
                 temp_locations[2*num_temp + 1] = col;
                 map[row+1][col] = 2;
                 num_temp++;
             }
-            printf("start fire 3\n");
             if (col != 0 && map[row][col-1]==1){
                 temp_locations[2*num_temp] = row;
                 temp_locations[2*num_temp + 1] = col - 1;
                 map[row][col-1] = 2;
                 num_temp++;
             }
-            printf("start fire 4\n");
             if (row != length && map[row][col + 1]==1){
                 temp_locations[2*num_temp] = row;
                 temp_locations[2*num_temp + 1] = col + 1;
@@ -71,10 +67,8 @@ int calculate(int length, int density) {
                 num_temp++;
             }
         }
-        printf("start fire 5\n");
         fire_locations = temp_locations;
         num_fire = num_temp;
-        printf("%d\n",num_fire);
         time_count++;
 
         for (i = 0; i < length; i++) {
@@ -85,14 +79,11 @@ int calculate(int length, int density) {
                 else{
                     printf("%d,",map[i][j]);
                 }
-
             }
             printf("\n");
         }
-
         printf("\n");
     }
-
     return time_count;
 }
 
