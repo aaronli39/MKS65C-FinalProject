@@ -43,7 +43,9 @@ int calculate(int length, int density) {
         temp_locations[0] = '\0';
         int num_temp = 0;
         int k;
+        int m = 0;
         for (k = 0; k < num_fire; k++){
+            // m++;
             int row = fire_locations[2*k];
             int col = fire_locations[2*k + 1];
             map[row][col] = 0;
@@ -71,30 +73,35 @@ int calculate(int length, int density) {
                 map[row][col+1] = 2;
                 num_temp++;
             }
+            // printf("%d, m:%d\n",k,m);
+            printf("%d\n", k);
         }
         fire_locations = temp_locations;
         num_fire = num_temp;
         time_count++;
 
-        for (i = 0; i < length; i++) {
-            for (j = 0; j < length; j++) {
-                if (map[i][j] == 0){
+        int l,n;
+        for (l = 0; l < length; l++) {
+            for (n = 0; n < length; n++) {
+                if (map[l][n] == 0){
                     printf(" ,");
                 }
                 else{
-                    printf("%d,",map[i][j]);
+                    printf("%d,",map[l][n]);
                 }
             }
             printf("\n");
         }
         printf("\n");
+
     }
+
     return time_count;
 }
 
 int main() {
     int seed = time(NULL);
-    srand(seed);
+    srand(1546978500);
     printf("seed: %d\n",seed);
     printf("%d\n",calculate(30,65));
 }
