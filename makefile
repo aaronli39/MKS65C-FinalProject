@@ -9,4 +9,4 @@ run:
 
 clean:
 	rm *.o
-	rn a.out
+	rm ./a.out

@@ -99,10 +99,46 @@ int calculate(int length, int density) {
     return time_count;
 }
 
+// one method for everything to run
+void run() {
+    char inp[100];
+    int den, dim;
+    while (1) {
+        printf("\n<____________________________________________________>\n\n");
+        printf("What do you want to do? (please just type the number)\n1. calculate\n2. fork\n");
+        fgets(inp, 100, stdin);
+        *strchr(inp, '\n') = 0;
+
+        // exiting
+        if (strcmp(inp, "exit") == 0) {
+            exit(0);
+        } else if (strcmp(inp, "1") == 0) { // calculating 1 density with specified dimensions
+            printf("Desired density: \n");
+            fgets(inp, 100, stdin);
+            *strchr(inp, '\n') = 0;
+            den = atoi(inp);
+            printf("Desired dimensions: \n");
+            fgets(inp, 100, stdin);
+            *strchr(inp, '\n') = 0;
+            dim = atoi(inp);
+            printf("You entered: den -> %d, dim -> %d\n", den, dim);
+
+            printf("# of turns: %d\n", calculate(dim, den));
+        } else if (strcmp(inp, "2") == 0) { // using forking to run multiple times
+
+        }
+
+    }
+}
+
 int main() {
     int seed = time(NULL);
     // srand(1546978500);
     srand(seed);
     printf("seed: %d\n",seed);
-    printf("# of turns: %d\n",calculate(30,65));
+    // printf("# of turns: %d\n",calculate(30,65));
+
+    run();
+
+    return 0;
 }
