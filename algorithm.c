@@ -2,6 +2,10 @@
 #include <string.h>
 #include <stdlib.h>
 #include <time.h>
+#include <sys/types.h>
+#include <sys/wait.h>
+#include <unistd.h>
+#include <errno.h>
 
 int calculate(int length, int density) {
     int map[length][length];
@@ -102,10 +106,12 @@ int calculate(int length, int density) {
 // one method for everything to run
 void run() {
     char inp[100];
-    int den, dim;
+    int den, dim, child_pid, status;
+    int *res = calloc(1, sizeof(int));
+    int i;
     while (1) {
         printf("\n<____________________________________________________>\n\n");
-        printf("What do you want to do? (please just type the number)\n1. calculate\n2. fork\n");
+        printf("What do you want to do? (please just type the number)\n1. calculate\n2. fork calculate (will summarize results)\n");
         fgets(inp, 100, stdin);
         *strchr(inp, '\n') = 0;
 
@@ -125,7 +131,46 @@ void run() {
 
             printf("# of turns: %d\n", calculate(dim, den));
         } else if (strcmp(inp, "2") == 0) { // using forking to run multiple times
-
+            // get user input
+            printf("Desired density: \n");
+            fgets(inp, 100, stdin);
+            *strchr(inp, '\n') = 0;
+            den = atoi(inp);
+            printf("Desired dimensions: \n");
+            fgets(inp, 100, stdin);
+            *strchr(inp, '\n') = 0;
+            dim = atoi(inp);
+            printf("You entered: den -> %d, dim -> %d\n", den, dim);
+            // forking twice
+            for (i = 0; i < 2; i++) {
+                child_pid = fork();
+                if (child_pid == 0) { // child
+                    // calculate
+                    // int temp = calculate(den,dim);
+                    *res = calculate(dim, den);
+                    printf("current result: %d\n", *res);
+                    // printf("result1: %d\n", *res);
+                    // printf("result2: %d\n", *(res + 1));
+                    // res += temp;
+                    sleep(2);
+                    exit(0);
+                } else { // parent
+                    waitpid(child_pid, &status, 0);
+                    int error = WEXITSTATUS(status);
+                    if (error) {
+                        printf("Error: %s\n", strerror(errno));
+                    } else {
+                        printf("successfully executed\n");
+                    }
+                }
+            }
+            // for (i = 0; i < 2; i++) {
+            //     int temp = calculate(dim, den);
+            //     printf("val: %d\n", temp);
+            //     sleep(2);
+            // }
+            printf("result1: %d\n", *res);
+            free(res);
         }
 
     }
