@@ -28,10 +28,10 @@ int calculate(int length, int density) {
     for (i = 0; i < length; i++) {
         for (j = 0; j < length; j++) {
             if (map[i][j] == 0){
-                printf(" ,");
+                printf("0");
             }
             else{
-                printf("%d,",map[i][j]);
+                printf("%d",map[i][j]);
             }
         }
         printf("\n");
@@ -43,7 +43,7 @@ int calculate(int length, int density) {
         temp_locations[0] = '\0';
         int num_temp = 0;
         int k;
-        int m = 0;
+        // int m = 0;
         for (k = 0; k < num_fire; k++){
             // m++;
             int row = fire_locations[2*k];
@@ -74,7 +74,7 @@ int calculate(int length, int density) {
                 num_temp++;
             }
             // printf("%d, m:%d\n",k,m);
-            printf("%d\n", k);
+            // printf("%d\n", k);
         }
         fire_locations = temp_locations;
         num_fire = num_temp;
@@ -84,10 +84,10 @@ int calculate(int length, int density) {
         for (l = 0; l < length; l++) {
             for (n = 0; n < length; n++) {
                 if (map[l][n] == 0){
-                    printf(" ,");
+                    printf("0");
                 }
                 else{
-                    printf("%d,",map[l][n]);
+                    printf("%d",map[l][n]);
                 }
             }
             printf("\n");
@@ -95,13 +95,14 @@ int calculate(int length, int density) {
         printf("\n");
 
     }
-
+    printf("legend:\n0: dirt/empty block\n1: tree\n2: fire\n");
     return time_count;
 }
 
 int main() {
     int seed = time(NULL);
-    srand(1546978500);
+    // srand(1546978500);
+    srand(seed);
     printf("seed: %d\n",seed);
-    printf("%d\n",calculate(30,65));
+    printf("# of turns: %d\n",calculate(30,65));
 }
