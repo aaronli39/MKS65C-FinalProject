@@ -5,6 +5,7 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <unistd.h>
+#include <ctype.h>
 #include <errno.h>
 
 int has_fire(int length, int *** map){
@@ -181,11 +182,16 @@ int calculate(int length, int density) {
     return time_count;
 }
 
+// check if a string has only numbers
+// 0: not solely digits(tabs/newlines are not digits)
+// 1: solely digits
 int isNum(char *inp) {
     int i, ret;
     for (int i = 0; i < strlen(inp); i++) {
-        if ()
-    }
+        if (! isdigit(inp[i])) {
+            return 0;
+        }
+    } return 1;
 }
 
 // one method for everything to run
@@ -216,21 +222,23 @@ void run() {
 
             printf("# of turns: %d\n", non_frontier(dim, den));
         } else if (strcmp(inp, "2") == 0) { // using forking to run multiple times
-            // get user input
-            printf("Desired density: \n");
-            fgets(inp, 100, stdin);
-            *strchr(inp, '\n') = 0;
-            den = atoi(inp);
-            if (! den) {
-                printf("Invalid input. Please just enter the number of the choice you wish to make.\n");
-
+            while (1) {
+                // get user input
+                printf("Desired density: \n");
+                fgets(inp, 100, stdin);
+                *strchr(inp, '\n') = 0;
+                if (isNum(inp)) {
+                    den = atoi(inp);
+                } else {
+                    printf("Invalid input. Please just enter the number of the choice you wish to make.\n");
+                }
             }
+
             printf("Desired dimensions: \n");
             fgets(inp, 100, stdin);
             *strchr(inp, '\n') = 0;
             dim = atoi(inp);
             printf("You entered: den -> %d, dim -> %d\n", den, dim);
-            int hi[2];
             // forking twice
             for (i = 0; i < 2; i++) {
                 child_pid = fork();
@@ -276,6 +284,8 @@ int main() {
     printf("seed: %d\n",seed);
     // printf("# of turns: %d\n",calculate(30,65));
 
+    // char *temp = "\t";
+    // printf("%d\n", isNum(temp));
     run();
 
     return 0;
