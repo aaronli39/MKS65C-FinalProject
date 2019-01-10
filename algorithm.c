@@ -32,15 +32,15 @@ int calculate(int length, int density) {
     for (i = 0; i < length; i++) {
         for (j = 0; j < length; j++) {
             if (map[i][j] == 0){
-                printf("0");
+                // printf("0");
             }
             else{
-                printf("%d",map[i][j]);
+                // printf("%d",map[i][j]);
             }
         }
-        printf("\n");
+        // printf("\n");
     }
-    printf("\n");
+    // printf("\n");
 
     while (num_fire) {
         int * temp_locations = (int *)malloc(length*length*3);
@@ -88,19 +88,26 @@ int calculate(int length, int density) {
         for (l = 0; l < length; l++) {
             for (n = 0; n < length; n++) {
                 if (map[l][n] == 0){
-                    printf("0");
+                    // printf("0");
                 }
                 else{
-                    printf("%d",map[l][n]);
+                    // printf("%d",map[l][n]);
                 }
             }
-            printf("\n");
+            // printf("\n");
         }
-        printf("\n");
+        // printf("\n");
 
     }
     printf("legend:\n0: dirt/empty block\n1: tree\n2: fire\n");
     return time_count;
+}
+
+int isNum(char *inp) {
+    int i, ret;
+    for (int i = 0; i < strlen(inp); i++) {
+        if ()
+    }
 }
 
 // one method for everything to run
@@ -136,23 +143,31 @@ void run() {
             fgets(inp, 100, stdin);
             *strchr(inp, '\n') = 0;
             den = atoi(inp);
+            if (! den) {
+                printf("Invalid input. Please just enter the number of the choice you wish to make.\n");
+
+            }
             printf("Desired dimensions: \n");
             fgets(inp, 100, stdin);
             *strchr(inp, '\n') = 0;
             dim = atoi(inp);
             printf("You entered: den -> %d, dim -> %d\n", den, dim);
+            int hi[2];
             // forking twice
             for (i = 0; i < 2; i++) {
                 child_pid = fork();
                 if (child_pid == 0) { // child
                     // calculate
                     // int temp = calculate(den,dim);
-                    *res = calculate(dim, den);
-                    printf("current result: %d\n", *res);
+                    // *res = calculate(dim, den);
+                    // sleep(2);
+                    int seed = time(NULL);
+                    srand(seed + i);
+                    // int e = calculate(dim,den);
+                    printf("current result: %d\n", calculate(dim, den));
                     // printf("result1: %d\n", *res);
                     // printf("result2: %d\n", *(res + 1));
                     // res += temp;
-                    sleep(2);
                     exit(0);
                 } else { // parent
                     waitpid(child_pid, &status, 0);
