@@ -3,6 +3,85 @@
 #include <stdlib.h>
 #include <time.h>
 
+int has_fire(int length, int *** map){
+    int i,j;
+    for (i=0; i<length; i++){
+        for (j=0; j<length; j++){
+            if (*map[i][j] == 2){
+                return 1;
+            }
+        }
+    }
+    return 0;
+}
+
+int non_frontier(int length, int density) {
+    int map[length][length];
+    int i,j;
+    for (i = 0; i < length; i++) {
+        for (j = 0; j < length; j++) {
+            map[i][j] = 0;
+            if (rand() % 100 < density) {
+                map[i][j] = 1;
+            }
+        }
+    }
+
+    map[length/2][length/2] = 2;
+
+    int turns = 0;
+    int has_fire = 1;
+    while (has_fire){
+        int m,n;
+        for (m = 0; m < length; m++){
+            for (n = 0; n < length; n++){
+                if (map[m][n] == 2){
+                    if (m == 0 && map[m-1][n]==1){
+                        map[m-1][n] = 3;
+                    }
+                    if (m != length && map[m+1][n]==1){
+                        map[m+1][n] = 3;
+                    }
+                    if (n != 0 && map[m][n-1]==1){
+                        map[m][n-1] = 3;
+                    }
+                    if (m != length && map[m][n + 1]==1){
+                        map[m][n+1] = 3;
+                    }
+                }
+            }
+        }
+
+        for (m=0; m<length; m++){
+            for (n=0; n<length; n++){
+                printf("%d,",map[m][n]);
+            }
+            printf("\n");
+        }
+        printf("\n");
+
+        turns++;
+        has_fire = 0;
+        for (i=0; i<length; i++){
+            for (j=0; j<length; j++){
+                if (map[i][j] == 2){
+                    map[i][j] = 0;
+                }
+            }
+        }
+
+        for (i=0; i<length; i++){
+            for (j=0; j<length; j++){
+                if (map[i][j] == 3){
+                    has_fire = 1;
+                    map[i][j] = 2;
+                }
+            }
+        }
+    }
+    return turns;
+}
+
 int calculate(int length, int density) {
     int map[length][length];
     int num_trees = 0;
@@ -43,7 +122,6 @@ int calculate(int length, int density) {
         temp_locations[0] = '\0';
         int num_temp = 0;
         int k;
-        // int m = 0;
         for (k = 0; k < num_fire; k++){
             // m++;
             int row = fire_locations[2*k];
@@ -123,7 +201,7 @@ void run() {
             dim = atoi(inp);
             printf("You entered: den -> %d, dim -> %d\n", den, dim);
 
-            printf("# of turns: %d\n", calculate(dim, den));
+            printf("# of turns: %d\n", non_frontier(dim, den));
         } else if (strcmp(inp, "2") == 0) { // using forking to run multiple times
 
         }
