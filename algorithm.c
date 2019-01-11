@@ -38,24 +38,6 @@ int non_frontier(int length, int density) {
     int has_fire = 1;
     while (has_fire){
         int m,n;
-        for (m = 0; m < length; m++){
-            for (n = 0; n < length; n++){
-                if (map[m][n] == 2){
-                    if (m == 0 && map[m-1][n]==1){
-                        map[m-1][n] = 3;
-                    }
-                    if (m != length && map[m+1][n]==1){
-                        map[m+1][n] = 3;
-                    }
-                    if (n != 0 && map[m][n-1]==1){
-                        map[m][n-1] = 3;
-                    }
-                    if (m != length && map[m][n + 1]==1){
-                        map[m][n+1] = 3;
-                    }
-                }
-            }
-        }
 
         for (m=0; m<length; m++){
             for (n=0; n<length; n++){
@@ -64,6 +46,35 @@ int non_frontier(int length, int density) {
             printf("\n");
         }
         printf("\n");
+
+        for (m = 0; m < length; m++){
+            for (n = 0; n < length; n++){
+                if (map[m][n] == 2){
+                    if (m != 0 && map[m-1][n]==1){
+                        map[m-1][n] = 3;
+                    }
+                    if (m != length-1 && map[m+1][n]==1){
+                        map[m+1][n] = 3;
+                    }
+                    if (n != 0 && map[m][n-1]==1){
+                        map[m][n-1] = 3;
+                    }
+                    if (n != length-1 && map[m][n + 1]==1){
+                        map[m][n+1] = 3;
+                    }
+                }
+            }
+        }
+
+        /*
+        for (m=0; m<length; m++){
+            for (n=0; n<length; n++){
+                printf("%d,",map[m][n]);
+            }
+            printf("\n");
+        }
+        printf("\n");
+        */
 
         turns++;
         has_fire = 0;
@@ -109,6 +120,7 @@ int calculate(int length, int density) {
     map[fire_locations[0]][fire_locations[1]] = 2;
 
     // Test print of the entire map
+    /*
     for (i = 0; i < length; i++) {
         for (j = 0; j < length; j++) {
             if (map[i][j] == 0){
@@ -121,6 +133,7 @@ int calculate(int length, int density) {
         printf("\n");
     }
     printf("\n");
+    */
 
     while (num_fire) {
         int * temp_locations = (int *)malloc(length*length*3);
@@ -138,7 +151,7 @@ int calculate(int length, int density) {
                 map[row-1][col] = 2;
                 num_temp++;
             }
-            if (row != length && map[row+1][col]==1){
+            if (row != length-1 && map[row+1][col]==1){
                 temp_locations[2*num_temp] = row + 1;
                 temp_locations[2*num_temp + 1] = col;
                 map[row+1][col] = 2;
@@ -150,7 +163,7 @@ int calculate(int length, int density) {
                 map[row][col-1] = 2;
                 num_temp++;
             }
-            if (row != length && map[row][col + 1]==1){
+            if (col != length-1 && map[row][col + 1]==1){
                 temp_locations[2*num_temp] = row;
                 temp_locations[2*num_temp + 1] = col + 1;
                 map[row][col+1] = 2;
@@ -163,6 +176,7 @@ int calculate(int length, int density) {
         num_fire = num_temp;
         time_count++;
 
+        /*
         int l,n;
         for (l = 0; l < length; l++) {
             for (n = 0; n < length; n++) {
@@ -176,7 +190,7 @@ int calculate(int length, int density) {
             printf("\n");
         }
         printf("\n");
-
+        */
     }
     // printf("legend:\n0: dirt/empty block\n1: tree\n2: fire\n\n");
     return time_count;
@@ -186,8 +200,8 @@ int calculate(int length, int density) {
 // 0: not solely digits(tabs/newlines are not digits)
 // 1: solely digits
 int isNum(char *inp) {
-    int i, ret;
-    for (int i = 0; i < strlen(inp); i++) {
+    int i;
+    for (i = 0; i < (int)strlen(inp); i++) {
         if (! isdigit(inp[i])) {
             return 0;
         }
@@ -234,8 +248,25 @@ void run() {
             }
             printf("You entered: den -> %d, dim -> %d\n", den, dim);
 
-            printf("# of turns(non_frontier): %d\n", non_frontier(dim, den));
-            printf("# of turns(frontier): %d\n", calculate(dim, den));
+            int method_num = 0;
+            while (1) {
+                printf("\nCalculation Method (Enter number):\n1.Non_frontier\n2.Frontier\n");
+                fgets(inp, 100, stdin);
+                *strchr(inp, '\n') = 0;
+                if (isNum(inp)) {
+                    method_num= atoi(inp);
+                    break;
+                } else {
+                    printf("Invalid input. Please just enter the number of the choice you wish to make.\n");
+                }
+            }
+
+            if (method_num == 1){
+                printf("# of turns(non_frontier): %d\n", non_frontier(dim, den));
+            }
+            else if (method_num == 2){
+                printf("# of turns(frontier): %d\n", calculate(dim, den));
+            }
         } else if (strcmp(inp, "2") == 0) { // using forking to run multiple times
             while (1) {
                 // get user input
@@ -264,8 +295,10 @@ void run() {
             printf("You entered: den -> %d, dim -> %d\n", den, dim);
 
             // forking twice
+            int i;
+            int * res = (int *)malloc(2*sizeof(int));
             for (i = 0; i < 2; i++) {
-                child_pid = fork();
+                int child_pid = fork();
                 if (child_pid == 0) { // child
                     // calculate
                     // int temp = calculate(den,dim);
@@ -280,6 +313,7 @@ void run() {
                     // res += temp;
                     exit(0);
                 } else { // parent
+                    int status = 0;
                     waitpid(child_pid, &status, 0);
                     int error = WEXITSTATUS(status);
                     if (error) {
@@ -302,8 +336,8 @@ void run() {
 
 int main() {
     int seed = time(NULL);
-    // srand(1546978500);
-    srand(seed);
+    srand(1446978541);
+    //srand(seed);
     printf("seed: %d\n",seed);
     // printf("# of turns: %d\n",calculate(30,65));
 
