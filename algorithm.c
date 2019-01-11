@@ -9,6 +9,7 @@
 #include <errno.h>
 
 #define YEL "\x1B[33m"
+#define GRN "\x1B[32m"
 #define CYN "\x1B[36m"
 #define RED "\x1B[31m"
 #define RESET "\x1B[0m"
@@ -277,10 +278,10 @@ void run(int seed) {
             }
 
             if (method_num == 1){
-                printf(YEL "\n# of turns(non_frontier): %d\n" RESET, non_frontier(dim, den));
+                printf("\n# of turns(non_frontier): " GRN "%d\n" RESET, non_frontier(dim, den));
             }
             else if (method_num == 2){
-                printf(YEL "\n# of turns(frontier): %d\n" RESET, calculate(dim, den));
+                printf("\n# of turns(frontier): " GRN "%d\n" RESET, calculate(dim, den));
             }
         } else if (strcmp(inp, "2") == 0) { // using forking to run multiple times
             while (1) {
@@ -349,7 +350,7 @@ void run(int seed) {
             int averaged = 0;
             for (i = 0; i < num_cores; i++){
                 averaged += all_results[i];
-            } printf(YEL "\nAveraged Results: %d\n" RESET, averaged / num_cores);
+            } printf("\nAveraged Results: " GRN "%d\n" RESET, averaged / num_cores);
         } else if (strcmp(inp,"3") == 0) { // using clients and server
             int max_clients = 0;
             printf("How many other computers do you want to do calcuations? (1 to 30): \n");
