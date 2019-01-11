@@ -215,7 +215,7 @@ void run(int seed) {
     char inp[100];
     int den, dim;
     while (1) {
-        printf("\n<____________________________________________________>\n\n");
+        printf("\n______________________________________________________\n\n");
         printf("What do you want to do? (please just type the number)\n1. calculate\n2. fork\n");
         fgets(inp, 100, stdin);
         *strchr(inp, '\n') = 0;
