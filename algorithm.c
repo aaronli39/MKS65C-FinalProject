@@ -2,10 +2,6 @@
 #include <string.h>
 #include <stdlib.h>
 #include <time.h>
-#include <sys/types.h>
-#include <sys/wait.h>
-#include <unistd.h>
-#include <errno.h>
 
 int has_fire(int length, int *** map){
     int i,j;
@@ -111,15 +107,15 @@ int calculate(int length, int density) {
     for (i = 0; i < length; i++) {
         for (j = 0; j < length; j++) {
             if (map[i][j] == 0){
-                // printf("0");
+                printf("0");
             }
             else{
-                // printf("%d",map[i][j]);
+                printf("%d",map[i][j]);
             }
         }
-        // printf("\n");
+        printf("\n");
     }
-    // printf("\n");
+    printf("\n");
 
     while (num_fire) {
         int * temp_locations = (int *)malloc(length*length*3);
@@ -166,37 +162,28 @@ int calculate(int length, int density) {
         for (l = 0; l < length; l++) {
             for (n = 0; n < length; n++) {
                 if (map[l][n] == 0){
-                    // printf("0");
+                    printf("0");
                 }
                 else{
-                    // printf("%d",map[l][n]);
+                    printf("%d",map[l][n]);
                 }
             }
-            // printf("\n");
+            printf("\n");
         }
-        // printf("\n");
+        printf("\n");
 
     }
     printf("legend:\n0: dirt/empty block\n1: tree\n2: fire\n");
     return time_count;
 }
 
-int isNum(char *inp) {
-    int i, ret;
-    for (int i = 0; i < strlen(inp); i++) {
-        if ()
-    }
-}
-
 // one method for everything to run
 void run() {
     char inp[100];
-    int den, dim, child_pid, status;
-    int *res = calloc(1, sizeof(int));
-    int i;
+    int den, dim;
     while (1) {
         printf("\n<____________________________________________________>\n\n");
-        printf("What do you want to do? (please just type the number)\n1. calculate\n2. fork calculate (will summarize results)\n");
+        printf("What do you want to do? (please just type the number)\n1. calculate\n2. fork\n");
         fgets(inp, 100, stdin);
         *strchr(inp, '\n') = 0;
 
@@ -216,56 +203,13 @@ void run() {
 
             printf("# of turns: %d\n", non_frontier(dim, den));
         } else if (strcmp(inp, "2") == 0) { // using forking to run multiple times
-            // get user input
-            printf("Desired density: \n");
-            fgets(inp, 100, stdin);
-            *strchr(inp, '\n') = 0;
-            den = atoi(inp);
-            if (! den) {
-                printf("Invalid input. Please just enter the number of the choice you wish to make.\n");
 
-            }
-            printf("Desired dimensions: \n");
-            fgets(inp, 100, stdin);
-            *strchr(inp, '\n') = 0;
-            dim = atoi(inp);
-            printf("You entered: den -> %d, dim -> %d\n", den, dim);
-            int hi[2];
-            // forking twice
-            for (i = 0; i < 2; i++) {
-                child_pid = fork();
-                if (child_pid == 0) { // child
-                    // calculate
-                    // int temp = calculate(den,dim);
-                    // *res = calculate(dim, den);
-                    // sleep(2);
-                    int seed = time(NULL);
-                    srand(seed + i);
-                    // int e = calculate(dim,den);
-                    printf("current result: %d\n", calculate(dim, den));
-                    // printf("result1: %d\n", *res);
-                    // printf("result2: %d\n", *(res + 1));
-                    // res += temp;
-                    exit(0);
-                } else { // parent
-                    waitpid(child_pid, &status, 0);
-                    int error = WEXITSTATUS(status);
-                    if (error) {
-                        printf("Error: %s\n", strerror(errno));
-                    } else {
-                        printf("successfully executed\n");
-                    }
-                }
-            }
-            // for (i = 0; i < 2; i++) {
-            //     int temp = calculate(dim, den);
-            //     printf("val: %d\n", temp);
-            //     sleep(2);
-            // }
-            printf("result1: %d\n", *res);
-            free(res);
         }
-
+        else if (strcmp(inp,"3") == 0) { //using clients and server
+            int max_clients = 0;
+            printf("How many other computers do you want to do calcuations? (1 to 30): \n");
+            
+        }
     }
 }
 
