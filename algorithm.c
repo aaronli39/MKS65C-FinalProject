@@ -301,8 +301,9 @@ void run(int seed) {
             // 0: Read, 1: Write
             pipe(pipe_fd);
 
+            int num_cores = 8;
             int i;
-            for (i = 0; i < 2; i++) {
+            for (i = 0; i < num_cores; i++) {
                 int child_pid = fork();
                 if (child_pid == 0) { // child
                     close(pipe_fd[0]); // closes the reading end
@@ -317,17 +318,22 @@ void run(int seed) {
                     exit(0);
                 }
             }
-            
-            int all_results[2];
+
+            int all_results[num_cores];
             int num_results = 0;
             close(pipe_fd[1]); //Closes the write end of the pipe
-            while (num_results < 2){
+            while (num_results < num_cores){
                 char returned_result[20];
                 read(pipe_fd[0], returned_result, 20);
                 all_results[num_results] = atoi(returned_result);
                 num_results++;
             }
-            printf("Averaged Results: %d\n",(all_results[0] + all_results[1]) / 2);
+
+            int averaged = 0;
+            for (i=0; i<num_cores; i++){
+                averaged += all_results[i];
+            }
+            printf("Averaged Results: %d\n", averaged/num_cores);
         }
         else if (strcmp(inp,"3") == 0) { //using clients and server
             int max_clients = 0;
