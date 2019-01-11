@@ -39,6 +39,7 @@ int non_frontier(int length, int density) {
     while (has_fire){
         int m,n;
 
+        /*
         for (m=0; m<length; m++){
             for (n=0; n<length; n++){
                 printf("%d,",map[m][n]);
@@ -46,6 +47,7 @@ int non_frontier(int length, int density) {
             printf("\n");
         }
         printf("\n");
+        */
 
         for (m = 0; m < length; m++){
             for (n = 0; n < length; n++){
@@ -209,7 +211,7 @@ int isNum(char *inp) {
 }
 
 // one method for everything to run
-void run() {
+void run(int seed) {
     char inp[100];
     int den, dim;
     while (1) {
@@ -295,36 +297,37 @@ void run() {
             printf("You entered: den -> %d, dim -> %d\n", den, dim);
 
             // forking twice
+            int pipe_fd[2];
+            // 0: Read, 1: Write
+            pipe(pipe_fd);
+
             int i;
-            int * res = (int *)malloc(2*sizeof(int));
             for (i = 0; i < 2; i++) {
                 int child_pid = fork();
                 if (child_pid == 0) { // child
-                    // calculate
-                    // int temp = calculate(den,dim);
-                    // *res = calculate(dim, den);
-                    // sleep(2);
-                    int seed = time(NULL);
+                    close(pipe_fd[0]); // closes the reading end
+
+                    //int seed = time(NULL);
                     srand(seed + i);
-                    // int e = calculate(dim,den);
-                    printf("current result: %d\n", calculate(dim, den));
-                    // printf("result1: %d\n", *res);
-                    // printf("result2: %d\n", *(res + 1));
-                    // res += temp;
+                    int result = non_frontier(dim,den);
+                    printf("current resultn: %d\n", result);
+                    char str_result[20];
+                    sprintf(str_result, "%d", result);
+                    write(pipe_fd[1], str_result, strlen(str_result)+1);
                     exit(0);
-                } else { // parent
-                    int status = 0;
-                    waitpid(child_pid, &status, 0);
-                    int error = WEXITSTATUS(status);
-                    if (error) {
-                        printf("Error: %s\n", strerror(errno));
-                    } else {
-                        printf("successfully executed\n");
-                    }
                 }
             }
-            printf("result1: %d\n", *res);
-            free(res);
+            
+            int all_results[2];
+            int num_results = 0;
+            close(pipe_fd[1]); //Closes the write end of the pipe
+            while (num_results < 2){
+                char returned_result[20];
+                read(pipe_fd[0], returned_result, 20);
+                all_results[num_results] = atoi(returned_result);
+                num_results++;
+            }
+            printf("Averaged Results: %d\n",(all_results[0] + all_results[1]) / 2);
         }
         else if (strcmp(inp,"3") == 0) { //using clients and server
             int max_clients = 0;
@@ -343,7 +346,7 @@ int main() {
 
     // char *temp = "\t";
     // printf("%d\n", isNum(temp));
-    run();
+    run(seed);
 
     return 0;
 }
