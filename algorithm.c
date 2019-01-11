@@ -2,14 +2,11 @@
 #include <string.h>
 #include <stdlib.h>
 #include <time.h>
-<<<<<<< HEAD
-=======
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <unistd.h>
 #include <ctype.h>
 #include <errno.h>
->>>>>>> 2b9c55ea46f5e24db1f1b47959b6f53780821a44
 
 int has_fire(int length, int *** map){
     int i,j;
@@ -185,8 +182,6 @@ int calculate(int length, int density) {
     return time_count;
 }
 
-<<<<<<< HEAD
-=======
 // check if a string has only numbers
 // 0: not solely digits(tabs/newlines are not digits)
 // 1: solely digits
@@ -199,7 +194,6 @@ int isNum(char *inp) {
     } return 1;
 }
 
->>>>>>> 2b9c55ea46f5e24db1f1b47959b6f53780821a44
 // one method for everything to run
 void run() {
     char inp[100];
@@ -243,9 +237,6 @@ void run() {
             printf("# of turns(non_frontier): %d\n", non_frontier(dim, den));
             printf("# of turns(frontier): %d\n", calculate(dim, den));
         } else if (strcmp(inp, "2") == 0) { // using forking to run multiple times
-<<<<<<< HEAD
-
-=======
             while (1) {
                 // get user input
                 printf("\nDesired density: \n");
@@ -300,12 +291,11 @@ void run() {
             }
             printf("result1: %d\n", *res);
             free(res);
->>>>>>> 2b9c55ea46f5e24db1f1b47959b6f53780821a44
         }
         else if (strcmp(inp,"3") == 0) { //using clients and server
             int max_clients = 0;
             printf("How many other computers do you want to do calcuations? (1 to 30): \n");
-            
+
         }
     }
 }
