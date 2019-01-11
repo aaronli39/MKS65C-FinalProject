@@ -310,11 +310,11 @@ void run(int seed) {
 
                     //int seed = time(NULL);
                     srand(seed + i);
-                    int result = non_frontier(dim,den);
+                    int result = calculate(dim, den);
                     printf("current resultn: %d\n", result);
                     char str_result[20];
                     sprintf(str_result, "%d", result);
-                    write(pipe_fd[1], str_result, strlen(str_result)+1);
+                    write(pipe_fd[1], str_result, strlen(str_result) + 1);
                     exit(0);
                 }
             }
@@ -330,12 +330,10 @@ void run(int seed) {
             }
 
             int averaged = 0;
-            for (i=0; i<num_cores; i++){
+            for (i = 0; i < num_cores; i++){
                 averaged += all_results[i];
-            }
-            printf("Averaged Results: %d\n", averaged/num_cores);
-        }
-        else if (strcmp(inp,"3") == 0) { //using clients and server
+            } printf("Averaged Results: %d\n", averaged / num_cores);
+        } else if (strcmp(inp,"3") == 0) { // using clients and server
             int max_clients = 0;
             printf("How many other computers do you want to do calcuations? (1 to 30): \n");
 
@@ -347,7 +345,7 @@ int main() {
     int seed = time(NULL);
     srand(1446978541);
     //srand(seed);
-    printf("seed: %d\n",seed);
+    printf("seed: %d\n", seed);
     // printf("# of turns: %d\n",calculate(30,65));
 
     // char *temp = "\t";
