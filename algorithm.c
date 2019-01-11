@@ -2,6 +2,14 @@
 #include <string.h>
 #include <stdlib.h>
 #include <time.h>
+<<<<<<< HEAD
+=======
+#include <sys/types.h>
+#include <sys/wait.h>
+#include <unistd.h>
+#include <ctype.h>
+#include <errno.h>
+>>>>>>> 2b9c55ea46f5e24db1f1b47959b6f53780821a44
 
 int has_fire(int length, int *** map){
     int i,j;
@@ -173,10 +181,25 @@ int calculate(int length, int density) {
         printf("\n");
 
     }
-    printf("legend:\n0: dirt/empty block\n1: tree\n2: fire\n");
+    // printf("legend:\n0: dirt/empty block\n1: tree\n2: fire\n\n");
     return time_count;
 }
 
+<<<<<<< HEAD
+=======
+// check if a string has only numbers
+// 0: not solely digits(tabs/newlines are not digits)
+// 1: solely digits
+int isNum(char *inp) {
+    int i, ret;
+    for (int i = 0; i < strlen(inp); i++) {
+        if (! isdigit(inp[i])) {
+            return 0;
+        }
+    } return 1;
+}
+
+>>>>>>> 2b9c55ea46f5e24db1f1b47959b6f53780821a44
 // one method for everything to run
 void run() {
     char inp[100];
@@ -191,19 +214,93 @@ void run() {
         if (strcmp(inp, "exit") == 0) {
             exit(0);
         } else if (strcmp(inp, "1") == 0) { // calculating 1 density with specified dimensions
-            printf("Desired density: \n");
-            fgets(inp, 100, stdin);
-            *strchr(inp, '\n') = 0;
-            den = atoi(inp);
-            printf("Desired dimensions: \n");
-            fgets(inp, 100, stdin);
-            *strchr(inp, '\n') = 0;
-            dim = atoi(inp);
+            while (1) {
+                // get user input
+                printf("\nDesired density: \n");
+                fgets(inp, 100, stdin);
+                *strchr(inp, '\n') = 0;
+                if (isNum(inp)) {
+                    den = atoi(inp);
+                    break;
+                } else {
+                    printf("Invalid input. Please just enter the number of the choice you wish to make.\n");
+                }
+            }
+
+            while (1) {
+                printf("\nDesired dimensions: \n");
+                fgets(inp, 100, stdin);
+                *strchr(inp, '\n') = 0;
+                if (isNum(inp)) {
+                    dim = atoi(inp);
+                    break;
+                } else {
+                    printf("Invalid input. Please just enter the number of the choice you wish to make.\n");
+                }
+            }
             printf("You entered: den -> %d, dim -> %d\n", den, dim);
 
-            printf("# of turns: %d\n", non_frontier(dim, den));
+            printf("# of turns(non_frontier): %d\n", non_frontier(dim, den));
+            printf("# of turns(frontier): %d\n", calculate(dim, den));
         } else if (strcmp(inp, "2") == 0) { // using forking to run multiple times
+<<<<<<< HEAD
 
+=======
+            while (1) {
+                // get user input
+                printf("\nDesired density: \n");
+                fgets(inp, 100, stdin);
+                *strchr(inp, '\n') = 0;
+                if (isNum(inp)) {
+                    den = atoi(inp);
+                    break;
+                } else {
+                    printf("Invalid input. Please just enter the number of the choice you wish to make.\n");
+                }
+            }
+
+            while (1) {
+                printf("\nDesired dimensions: \n");
+                fgets(inp, 100, stdin);
+                *strchr(inp, '\n') = 0;
+                if (isNum(inp)) {
+                    dim = atoi(inp);
+                    break;
+                } else {
+                    printf("Invalid input. Please just enter the number of the choice you wish to make.\n");
+                }
+            }
+            printf("You entered: den -> %d, dim -> %d\n", den, dim);
+
+            // forking twice
+            for (i = 0; i < 2; i++) {
+                child_pid = fork();
+                if (child_pid == 0) { // child
+                    // calculate
+                    // int temp = calculate(den,dim);
+                    // *res = calculate(dim, den);
+                    // sleep(2);
+                    int seed = time(NULL);
+                    srand(seed + i);
+                    // int e = calculate(dim,den);
+                    printf("current result: %d\n", calculate(dim, den));
+                    // printf("result1: %d\n", *res);
+                    // printf("result2: %d\n", *(res + 1));
+                    // res += temp;
+                    exit(0);
+                } else { // parent
+                    waitpid(child_pid, &status, 0);
+                    int error = WEXITSTATUS(status);
+                    if (error) {
+                        printf("Error: %s\n", strerror(errno));
+                    } else {
+                        printf("successfully executed\n");
+                    }
+                }
+            }
+            printf("result1: %d\n", *res);
+            free(res);
+>>>>>>> 2b9c55ea46f5e24db1f1b47959b6f53780821a44
         }
         else if (strcmp(inp,"3") == 0) { //using clients and server
             int max_clients = 0;
@@ -220,6 +317,8 @@ int main() {
     printf("seed: %d\n",seed);
     // printf("# of turns: %d\n",calculate(30,65));
 
+    // char *temp = "\t";
+    // printf("%d\n", isNum(temp));
     run();
 
     return 0;
