@@ -178,7 +178,7 @@ int calculate(int length, int density) {
         // printf("\n");
 
     }
-    printf("legend:\n0: dirt/empty block\n1: tree\n2: fire\n");
+    // printf("legend:\n0: dirt/empty block\n1: tree\n2: fire\n\n");
     return time_count;
 }
 
@@ -210,35 +210,61 @@ void run() {
         if (strcmp(inp, "exit") == 0) {
             exit(0);
         } else if (strcmp(inp, "1") == 0) { // calculating 1 density with specified dimensions
-            printf("Desired density: \n");
-            fgets(inp, 100, stdin);
-            *strchr(inp, '\n') = 0;
-            den = atoi(inp);
-            printf("Desired dimensions: \n");
-            fgets(inp, 100, stdin);
-            *strchr(inp, '\n') = 0;
-            dim = atoi(inp);
-            printf("You entered: den -> %d, dim -> %d\n", den, dim);
-
-            printf("# of turns: %d\n", non_frontier(dim, den));
-        } else if (strcmp(inp, "2") == 0) { // using forking to run multiple times
             while (1) {
                 // get user input
-                printf("Desired density: \n");
+                printf("\nDesired density: \n");
                 fgets(inp, 100, stdin);
                 *strchr(inp, '\n') = 0;
                 if (isNum(inp)) {
                     den = atoi(inp);
+                    break;
                 } else {
                     printf("Invalid input. Please just enter the number of the choice you wish to make.\n");
                 }
             }
 
-            printf("Desired dimensions: \n");
-            fgets(inp, 100, stdin);
-            *strchr(inp, '\n') = 0;
-            dim = atoi(inp);
+            while (1) {
+                printf("\nDesired dimensions: \n");
+                fgets(inp, 100, stdin);
+                *strchr(inp, '\n') = 0;
+                if (isNum(inp)) {
+                    dim = atoi(inp);
+                    break;
+                } else {
+                    printf("Invalid input. Please just enter the number of the choice you wish to make.\n");
+                }
+            }
             printf("You entered: den -> %d, dim -> %d\n", den, dim);
+
+            printf("# of turns(non_frontier): %d\n", non_frontier(dim, den));
+            printf("# of turns(frontier): %d\n", calculate(dim, den));
+        } else if (strcmp(inp, "2") == 0) { // using forking to run multiple times
+            while (1) {
+                // get user input
+                printf("\nDesired density: \n");
+                fgets(inp, 100, stdin);
+                *strchr(inp, '\n') = 0;
+                if (isNum(inp)) {
+                    den = atoi(inp);
+                    break;
+                } else {
+                    printf("Invalid input. Please just enter the number of the choice you wish to make.\n");
+                }
+            }
+
+            while (1) {
+                printf("\nDesired dimensions: \n");
+                fgets(inp, 100, stdin);
+                *strchr(inp, '\n') = 0;
+                if (isNum(inp)) {
+                    dim = atoi(inp);
+                    break;
+                } else {
+                    printf("Invalid input. Please just enter the number of the choice you wish to make.\n");
+                }
+            }
+            printf("You entered: den -> %d, dim -> %d\n", den, dim);
+
             // forking twice
             for (i = 0; i < 2; i++) {
                 child_pid = fork();
@@ -265,11 +291,6 @@ void run() {
                     }
                 }
             }
-            // for (i = 0; i < 2; i++) {
-            //     int temp = calculate(dim, den);
-            //     printf("val: %d\n", temp);
-            //     sleep(2);
-            // }
             printf("result1: %d\n", *res);
             free(res);
         }
