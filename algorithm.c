@@ -307,7 +307,11 @@ void run(int seed) {
                 *strchr(inp, '\n') = 0;
                 if (isNum(inp)) {
                     dim = atoi(inp);
-                    break;
+                    if (dim > 1400 || den < 0) {
+                        printf(RED "\nInvalid input. Please enter a dimension between 0 and 1400.\n" RESET);
+                    } else {
+                        break;
+                    }
                 } else {
                     printf(RED "\nInvalid input. Please just enter numbers.\n" RESET);
                 }
@@ -326,7 +330,7 @@ void run(int seed) {
                 if (child_pid == 0) { // child
                     close(pipe_fd[0]); // closes the reading end
 
-                    //int seed = time(NULL);
+                    seed = time(NULL);
                     srand(seed + i);
                     int result = calculate(dim, den);
                     printf("current resultn: %d\n", result);
@@ -361,8 +365,8 @@ void run(int seed) {
 
 int main() {
     int seed = time(NULL);
-    srand(1446978541);
-    //srand(seed);
+    //srand(1446978541);
+    srand(seed);
     printf("seed: %d\n", seed);
     // printf("# of turns: %d\n",calculate(30,65));
 
