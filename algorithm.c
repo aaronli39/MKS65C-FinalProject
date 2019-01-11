@@ -8,6 +8,11 @@
 #include <ctype.h>
 #include <errno.h>
 
+#define YEL "\x1B[33m"
+#define CYN "\x1B[36m"
+#define RED "\x1B[31m"
+#define RESET "\x1B[0m"
+
 int has_fire(int length, int *** map){
     int i,j;
     for (i=0; i<length; i++){
@@ -41,63 +46,63 @@ int non_frontier(int length, int density) {
 
         /*
         for (m=0; m<length; m++){
-            for (n=0; n<length; n++){
-                printf("%d,",map[m][n]);
-            }
-            printf("\n");
-        }
-        printf("\n");
-        */
+        for (n=0; n<length; n++){
+        printf("%d,",map[m][n]);
+    }
+    printf("\n");
+}
+printf("\n");
+*/
 
-        for (m = 0; m < length; m++){
-            for (n = 0; n < length; n++){
-                if (map[m][n] == 2){
-                    if (m != 0 && map[m-1][n]==1){
-                        map[m-1][n] = 3;
-                    }
-                    if (m != length-1 && map[m+1][n]==1){
-                        map[m+1][n] = 3;
-                    }
-                    if (n != 0 && map[m][n-1]==1){
-                        map[m][n-1] = 3;
-                    }
-                    if (n != length-1 && map[m][n + 1]==1){
-                        map[m][n+1] = 3;
-                    }
-                }
+for (m = 0; m < length; m++){
+    for (n = 0; n < length; n++){
+        if (map[m][n] == 2){
+            if (m != 0 && map[m-1][n]==1){
+                map[m-1][n] = 3;
             }
-        }
-
-        /*
-        for (m=0; m<length; m++){
-            for (n=0; n<length; n++){
-                printf("%d,",map[m][n]);
+            if (m != length-1 && map[m+1][n]==1){
+                map[m+1][n] = 3;
             }
-            printf("\n");
-        }
-        printf("\n");
-        */
-
-        turns++;
-        has_fire = 0;
-        for (i=0; i<length; i++){
-            for (j=0; j<length; j++){
-                if (map[i][j] == 2){
-                    map[i][j] = 0;
-                }
+            if (n != 0 && map[m][n-1]==1){
+                map[m][n-1] = 3;
             }
-        }
-
-        for (i=0; i<length; i++){
-            for (j=0; j<length; j++){
-                if (map[i][j] == 3){
-                    has_fire = 1;
-                    map[i][j] = 2;
-                }
+            if (n != length-1 && map[m][n + 1]==1){
+                map[m][n+1] = 3;
             }
         }
     }
-    return turns;
+}
+
+/*
+for (m=0; m<length; m++){
+for (n=0; n<length; n++){
+printf("%d,",map[m][n]);
+}
+printf("\n");
+}
+printf("\n");
+*/
+
+turns++;
+has_fire = 0;
+for (i=0; i<length; i++){
+    for (j=0; j<length; j++){
+        if (map[i][j] == 2){
+            map[i][j] = 0;
+        }
+    }
+}
+
+for (i=0; i<length; i++){
+    for (j=0; j<length; j++){
+        if (map[i][j] == 3){
+            has_fire = 1;
+            map[i][j] = 2;
+        }
+    }
+}
+}
+return turns;
 }
 
 int calculate(int length, int density) {
@@ -124,78 +129,78 @@ int calculate(int length, int density) {
     // Test print of the entire map
     /*
     for (i = 0; i < length; i++) {
-        for (j = 0; j < length; j++) {
-            if (map[i][j] == 0){
-                printf("0");
-            }
-            else{
-                printf("%d",map[i][j]);
-            }
-        }
-        printf("\n");
-    }
-    printf("\n");
-    */
+    for (j = 0; j < length; j++) {
+    if (map[i][j] == 0){
+    printf("0");
+}
+else{
+printf("%d",map[i][j]);
+}
+}
+printf("\n");
+}
+printf("\n");
+*/
 
-    while (num_fire) {
-        int * temp_locations = (int *)malloc(length*length*3);
-        temp_locations[0] = '\0';
-        int num_temp = 0;
-        int k;
-        for (k = 0; k < num_fire; k++){
-            // m++;
-            int row = fire_locations[2*k];
-            int col = fire_locations[2*k + 1];
-            map[row][col] = 0;
-            if (row != 0 && map[row-1][col]==1){
-                temp_locations[2*num_temp] = row - 1;
-                temp_locations[2*num_temp + 1] = col;
-                map[row-1][col] = 2;
-                num_temp++;
-            }
-            if (row != length-1 && map[row+1][col]==1){
-                temp_locations[2*num_temp] = row + 1;
-                temp_locations[2*num_temp + 1] = col;
-                map[row+1][col] = 2;
-                num_temp++;
-            }
-            if (col != 0 && map[row][col-1]==1){
-                temp_locations[2*num_temp] = row;
-                temp_locations[2*num_temp + 1] = col - 1;
-                map[row][col-1] = 2;
-                num_temp++;
-            }
-            if (col != length-1 && map[row][col + 1]==1){
-                temp_locations[2*num_temp] = row;
-                temp_locations[2*num_temp + 1] = col + 1;
-                map[row][col+1] = 2;
-                num_temp++;
-            }
-            // printf("%d, m:%d\n",k,m);
-            // printf("%d\n", k);
+while (num_fire) {
+    int * temp_locations = (int *)malloc(length*length*3);
+    temp_locations[0] = '\0';
+    int num_temp = 0;
+    int k;
+    for (k = 0; k < num_fire; k++){
+        // m++;
+        int row = fire_locations[2*k];
+        int col = fire_locations[2*k + 1];
+        map[row][col] = 0;
+        if (row != 0 && map[row-1][col]==1){
+            temp_locations[2*num_temp] = row - 1;
+            temp_locations[2*num_temp + 1] = col;
+            map[row-1][col] = 2;
+            num_temp++;
         }
-        fire_locations = temp_locations;
-        num_fire = num_temp;
-        time_count++;
-
-        /*
-        int l,n;
-        for (l = 0; l < length; l++) {
-            for (n = 0; n < length; n++) {
-                if (map[l][n] == 0){
-                    printf("0");
-                }
-                else{
-                    printf("%d",map[l][n]);
-                }
-            }
-            printf("\n");
+        if (row != length-1 && map[row+1][col]==1){
+            temp_locations[2*num_temp] = row + 1;
+            temp_locations[2*num_temp + 1] = col;
+            map[row+1][col] = 2;
+            num_temp++;
         }
-        printf("\n");
-        */
+        if (col != 0 && map[row][col-1]==1){
+            temp_locations[2*num_temp] = row;
+            temp_locations[2*num_temp + 1] = col - 1;
+            map[row][col-1] = 2;
+            num_temp++;
+        }
+        if (col != length-1 && map[row][col + 1]==1){
+            temp_locations[2*num_temp] = row;
+            temp_locations[2*num_temp + 1] = col + 1;
+            map[row][col+1] = 2;
+            num_temp++;
+        }
+        // printf("%d, m:%d\n",k,m);
+        // printf("%d\n", k);
     }
-    // printf("legend:\n0: dirt/empty block\n1: tree\n2: fire\n\n");
-    return time_count;
+    fire_locations = temp_locations;
+    num_fire = num_temp;
+    time_count++;
+
+    /*
+    int l,n;
+    for (l = 0; l < length; l++) {
+    for (n = 0; n < length; n++) {
+    if (map[l][n] == 0){
+    printf("0");
+}
+else{
+printf("%d",map[l][n]);
+}
+}
+printf("\n");
+}
+printf("\n");
+*/
+}
+// printf("legend:\n0: dirt/empty block\n1: tree\n2: fire\n\n");
+return time_count;
 }
 
 // check if a string has only numbers
@@ -215,7 +220,7 @@ void run(int seed) {
     char inp[100];
     int den, dim;
     while (1) {
-        printf("\n______________________________________________________\n\n");
+        printf(CYN "\n______________________________________________________\n\n" RESET);
         printf("What do you want to do? (please just type the number)\n1. calculate\n2. fork\n");
         fgets(inp, 100, stdin);
         *strchr(inp, '\n') = 0;
@@ -231,9 +236,13 @@ void run(int seed) {
                 *strchr(inp, '\n') = 0;
                 if (isNum(inp)) {
                     den = atoi(inp);
-                    break;
+                    if (den > 100 || den < 0) {
+                        printf(RED "\nInvalid input. Please enter a density between 0 and 100.\n" RESET);
+                    } else {
+                        break;
+                    }
                 } else {
-                    printf("Invalid input. Please just enter the number of the choice you wish to make.\n");
+                    printf(RED "\nInvalid input. Please just enter the number of the choice you wish to make.\n" RESET);
                 }
             }
 
@@ -245,10 +254,10 @@ void run(int seed) {
                     dim = atoi(inp);
                     break;
                 } else {
-                    printf("Invalid input. Please just enter the number of the choice you wish to make.\n");
+                    printf(RED "\nInvalid input. Please just enter numbers.\n" RESET);
                 }
             }
-            printf("You entered: den -> %d, dim -> %d\n", den, dim);
+            printf(YEL "\nYou entered: den -> %d, dim -> %d\n" RESET, den, dim);
 
             int method_num = 0;
             while (1) {
@@ -256,18 +265,22 @@ void run(int seed) {
                 fgets(inp, 100, stdin);
                 *strchr(inp, '\n') = 0;
                 if (isNum(inp)) {
-                    method_num= atoi(inp);
-                    break;
+                    method_num = atoi(inp);
+                    if (method_num != 1 && method_num != 2) {
+                        printf(RED "\nInvalid input. Please choose either 1 or 2.\n" RESET);
+                    } else {
+                        break;
+                    }
                 } else {
-                    printf("Invalid input. Please just enter the number of the choice you wish to make.\n");
+                    printf(RED "\nInvalid input. Please just enter the number of the choice you wish to make.\n" RESET);
                 }
             }
 
             if (method_num == 1){
-                printf("# of turns(non_frontier): %d\n", non_frontier(dim, den));
+                printf(YEL "\n# of turns(non_frontier): %d\n" RESET, non_frontier(dim, den));
             }
             else if (method_num == 2){
-                printf("# of turns(frontier): %d\n", calculate(dim, den));
+                printf(YEL "\n# of turns(frontier): %d\n" RESET, calculate(dim, den));
             }
         } else if (strcmp(inp, "2") == 0) { // using forking to run multiple times
             while (1) {
@@ -277,9 +290,13 @@ void run(int seed) {
                 *strchr(inp, '\n') = 0;
                 if (isNum(inp)) {
                     den = atoi(inp);
-                    break;
+                    if (den > 100 || den < 0) {
+                        printf(RED "\nInvalid input. Please enter a density between 0 and 100.\n" RESET);
+                    } else {
+                        break;
+                    }
                 } else {
-                    printf("Invalid input. Please just enter the number of the choice you wish to make.\n");
+                    printf(RED "\nInvalid input. Please just enter numbers.\n" RESET);
                 }
             }
 
@@ -291,10 +308,10 @@ void run(int seed) {
                     dim = atoi(inp);
                     break;
                 } else {
-                    printf("Invalid input. Please just enter the number of the choice you wish to make.\n");
+                    printf(RED "\nInvalid input. Please just enter numbers.\n" RESET);
                 }
             }
-            printf("You entered: den -> %d, dim -> %d\n", den, dim);
+            printf(YEL "\nYou entered: den -> %d, dim -> %d\n" RESET, den, dim);
 
             // forking twice
             int pipe_fd[2];
@@ -332,7 +349,7 @@ void run(int seed) {
             int averaged = 0;
             for (i = 0; i < num_cores; i++){
                 averaged += all_results[i];
-            } printf("Averaged Results: %d\n", averaged / num_cores);
+            } printf(YEL "\nAveraged Results: %d\n" RESET, averaged / num_cores);
         } else if (strcmp(inp,"3") == 0) { // using clients and server
             int max_clients = 0;
             printf("How many other computers do you want to do calcuations? (1 to 30): \n");
