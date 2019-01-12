@@ -107,7 +107,7 @@ return turns;
 }
 
 int calculate(int length, int density) {
-    int map[length][length];
+    int (*map)[length] = calloc(sizeof(int[length][length]),1);
     int num_trees = 0;
     int i,j;
     for (i = 0; i < length; i++) {
@@ -120,7 +120,7 @@ int calculate(int length, int density) {
         }
     }
 
-    int * fire_locations = (int *)malloc(length*length*3);
+    int * fire_locations = (int *)malloc((int)(length*length*2.1));
     int num_fire = 1;
     int time_count = 0;
     fire_locations[0] = length / 2;
@@ -307,11 +307,7 @@ void run(int seed) {
                 *strchr(inp, '\n') = 0;
                 if (isNum(inp)) {
                     dim = atoi(inp);
-                    if (dim > 1400 || den < 0) {
-                        printf(RED "\nInvalid input. Please enter a dimension between 0 and 1400.\n" RESET);
-                    } else {
-                        break;
-                    }
+                    break;
                 } else {
                     printf(RED "\nInvalid input. Please just enter numbers.\n" RESET);
                 }
@@ -323,7 +319,7 @@ void run(int seed) {
             // 0: Read, 1: Write
             pipe(pipe_fd);
 
-            int num_cores = 8;
+            int num_cores = 2;
             int i;
             for (i = 0; i < num_cores; i++) {
                 int child_pid = fork();
