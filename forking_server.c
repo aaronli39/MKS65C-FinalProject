@@ -227,7 +227,7 @@ void run(int seed) {
     int den, dim;
     while (1) {
         printf(CYN "\n______________________________________________________\n\n" RESET);
-        printf("What do you want to do? (please just type the number)\n1. calculate\n2. fork\n");
+        printf("What do you want to do? (please just type the number)\n1. calculate\n2. fork\n3. server setup\n");
         fgets(inp, 100, stdin);
         *strchr(inp, '\n') = 0;
 
@@ -358,46 +358,68 @@ void run(int seed) {
             } printf("\nAveraged Results: " GRN "%d\n" RESET, averaged / num_cores);
         } else if (strcmp(inp,"3") == 0) { // using clients and server
             int max_clients = 0;
-            printf("How many other computers do you want to do calcuations? (1 to 30): \n");
+            int current_clients = 0;
+            while (1) {
+                printf("\nHow many clients do you want connected: \n");
+                fgets(inp, 100, stdin);
+                *strchr(inp, '\n') = 0;
+                if (isNum(inp)) {
+                    max_clients = atoi(inp);
+                    if (max_clients > 30 || max_clients < 1) {
+                        printf(RED "\nInvalid input. Please enter a number between 0 and 30.\n" RESET);
+                    } else {
+                        break;
+                    }
+                } else {
+                    printf(RED "\nInvalid input. Please just enter numbers.\n" RESET);
+                }
+            }
 
             int listen_socket;
             int f;
             listen_socket = server_setup();
 
             while (1) {
-
-              int client_socket = server_connect(listen_socket);
-              f = fork();
-              if (f == 0)
-                subserver(client_socket);
-              else
-                close(client_socket);
+                int client_socket = server_connect(listen_socket);
+                current_clients++;
+                f = fork();
+                if (f == 0){
+                    printf("\n[Server]: Hello new user");
+                    printf("\n[Server]: clients connected: %d",current_clients);
+                    subserver(client_socket);
+                }
+                else {
+                    close(client_socket);
+                }
             }
         }
     }
 }
 
+//distrubute out stuff here
 void subserver(int client_socket) {
-  char buffer[BUFFER_SIZE];
+    char buffer[BUFFER_SIZE];
 
-  while (read(client_socket, buffer, sizeof(buffer))) {
+    while (1) {
+        fgets(buffer,1024,stdin);
+        write(client_socket, buffer, sizeof(buffer));
 
-    printf("[subserver %d] received: [%s]\n", getpid(), buffer);
-    process(buffer);
-    write(client_socket, buffer, sizeof(buffer));
-  }//end read loop
-  close(client_socket);
-  exit(0);
+        read(client_socket, buffer, sizeof(buffer));
+        printf("[subserver %d] received: [%s]\n", getpid(), buffer);
+        process(buffer);
+    }//end read loop
+    close(client_socket);
+    exit(0);
 }
 
 void process(char * s) {
-  while (*s) {
-    if (*s >= 'a' && *s <= 'z')
-      *s = ((*s - 'a') + 13) % 26 + 'a';
-    else  if (*s >= 'A' && *s <= 'Z')
-      *s = ((*s - 'a') + 13) % 26 + 'a';
-    s++;
-  }
+    while (*s) {
+        if (*s >= 'a' && *s <= 'z')
+        *s = ((*s - 'a') + 13) % 26 + 'a';
+        else  if (*s >= 'A' && *s <= 'Z')
+        *s = ((*s - 'a') + 13) % 26 + 'a';
+        s++;
+    }
 }
 
 int main() {
