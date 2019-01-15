@@ -1,21 +1,4 @@
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
-#include <time.h>
-#include <sys/types.h>
-#include <sys/wait.h>
-#include <sys/shm.h>
-#include <sys/ipc.h>
-#include <unistd.h>
-#include <ctype.h>
-#include <errno.h>
 #include "networking.h"
-
-#define YEL "\x1B[33m"
-#define GRN "\x1B[32m"
-#define CYN "\x1B[36m"
-#define RED "\x1B[31m"
-#define RESET "\x1B[0m"
 
 void subserver(int client_socket, int shmid, int shmid2, int dim);
 
@@ -189,22 +172,6 @@ while (num_fire) {
     fire_locations = temp_locations;
     num_fire = num_temp;
     time_count++;
-
-    /*
-    int l,n;
-    for (l = 0; l < length; l++) {
-    for (n = 0; n < length; n++) {
-    if (map[l][n] == 0){
-    printf("0");
-}
-else{
-printf("%d",map[l][n]);
-}
-}
-printf("\n");
-}
-printf("\n");
-*/
 }
 // printf("legend:\n0: dirt/empty block\n1: tree\n2: fire\n\n");
 return time_count;
@@ -431,24 +398,52 @@ void subserver(int client_socket, int shmid, int shmid2, int dim) {
     int * data = (int*)shmat(shmid,0,0);
     int * data2 = (int*)shmat(shmid2,0,0);
     while (1) {
+        int den = 0;
         if (*data2){
+            den = -1;
             sprintf(buffer, "%d", wait);
         }
         else {
             int i;
-            int den = 0;
             for (i=0; i<100; i++){
                 if (data[i] == 0){
-                    den = i+99;
+                    den = i+1;
+                    data[i] = -1;
                     break;
                 }
             }
             sprintf(buffer, "%d,%d", dim,den);
         }
+
+        if (den == 0){
+            break;
+        }
         write(client_socket, buffer, sizeof(buffer));
         read(client_socket, buffer, sizeof(buffer));
 
-        printf("received: [%s]. data2: [%d]\n", buffer, *data2);
+        if (*data2){
+            char str[1024];
+            strcpy(str,buffer);
+            const char delim[2] = ",";
+            char *token;
+            int *arr = (int*)calloc(2, sizeof(int));
+            int i = 0;
+            /* get the first token */
+            token = strtok(str, delim);
+
+            /* walk through other tokens */
+            while( token != NULL ) {
+                arr[i] = atoi(token);
+                i++;
+
+                token = strtok(NULL, delim);
+            }
+            int den_index = arr[0];
+            int result = arr[1];
+            free(arr);
+            data[den_index] = result;
+        }
+        //printf("received: [%s]. data2: [%d]\n", buffer, *data2);
     }
 
     close(client_socket);
@@ -465,48 +460,6 @@ void process(char * s) {
     }
 }
 
-/*
-void subserver(int client_socket, int shmid, int dim, int repeat) {
-char buffer[BUFFER_SIZE];
-char * cool_buffer = malloc(BUFFER_SIZE);
-
-int * final_data = shmat(shmid, 0, 0);
-
-while (read(client_socket, buffer, sizeof(buffer))) {
-//return percentage and avg turns
-strcpy(cool_buffer,buffer);
-char * percentage_string = cool_buffer;
-strsep(&cool_buffer," ");
-char * output_string = cool_buffer;
-
-int percentage = atoi(percentage_string);
-int output = atoi(output_string);
-
-final_data[percentage] = output;
-
-int next_percentage = 0;
-int i;
-for (i = 0; i<100; i++){
-if (final_data[i] == -1){
-next_percentage = i+1;
-break;
-}
-}
-
-if (next_percentage == 0){
-break;
-}
-
-char sending_data[100];
-sprintf(sending_data,"%d %d %d", dim, next_percentage, repeat);
-write(client_socket, sending_data, sizeof(sending_data));
-}//end read loop
-close(client_socket);
-exit(0);
-}
-*/
-
-
 int main() {
 
     int seed = time(NULL);
@@ -521,56 +474,3 @@ int main() {
 
     return 0;
 }
-
-// #include "networking.h"
-//
-// void process(char *s);
-// void subserver(int from_client);
-//
-// int main() {
-//
-//     int listen_socket;
-//     int f;
-//     listen_socket = server_setup();
-//
-//     while (1) {
-//
-//         int client_socket = server_connect(listen_socket);
-//         f = fork();
-//         if (f == 0)
-//         subserver(client_socket);
-//         else
-//         close(client_socket);
-//     }
-// }
-//
-// void subserver(int client_socket) {
-//     char buffer[BUFFER_SIZE];
-//     int sum = 0;
-//     int count = 0;
-//
-//     while (1) {
-//         // printf("enter data: ");
-//         // fgets(buffer, sizeof(buffer), stdin);
-//         // *strchr(buffer, '\n') = 0;
-//         sprintf(buffer, "%d", count);
-//         // count++;
-//         write(client_socket, buffer, sizeof(buffer));
-//         read(client_socket, buffer, sizeof(buffer));
-//         sum += atoi(buffer);
-//         printf("received: [%s]. current sum: [%d]\n", buffer, sum);
-//     }
-//
-//     close(client_socket);
-//     exit(0);
-// }
-//
-// void process(char * s) {
-//     while (*s) {
-//         if (*s >= 'a' && *s <= 'z')
-//         *s = ((*s - 'a') + 13) % 26 + 'a';
-//         else  if (*s >= 'A' && *s <= 'Z')
-//         *s = ((*s - 'a') + 13) % 26 + 'a';
-//         s++;
-//     }
-// }

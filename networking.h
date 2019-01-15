@@ -8,6 +8,17 @@
 #include <netdb.h>
 #include <string.h>
 #include <errno.h>
+#include <time.h>
+#include <sys/wait.h>
+#include <sys/shm.h>
+#include <sys/ipc.h>
+#include <ctype.h>
+
+#define YEL "\x1B[33m"
+#define GRN "\x1B[32m"
+#define CYN "\x1B[36m"
+#define RED "\x1B[31m"
+#define RESET "\x1B[0m"
 
 #ifndef NETWORKING_H
 #define NETWORKING_H
