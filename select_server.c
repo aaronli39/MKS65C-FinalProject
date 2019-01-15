@@ -49,21 +49,43 @@ int main() {
   }
 }
 
-void subserver(int client_socket) {
-  char buffer[BUFFER_SIZE];
+void subserver(int client_socket, int shmid, int dim, int repeat) {
+    char buffer[BUFFER_SIZE];
+    char * cool_buffer = malloc(BUFFER_SIZE);
 
-  //for testing client select statement
-  strncpy(buffer, "hello client", sizeof(buffer));
-  write(client_socket, buffer, sizeof(buffer));
+    int * final_data = shmat(shmid, 0, 0);
 
-  while (read(client_socket, buffer, sizeof(buffer))) {
+    while (read(client_socket, buffer, sizeof(buffer))) {
+        //return percentage and avg turns
+        strcpy(cool_buffer,buffer);
+        char * percentage_string = cool_buffer;
+        strsep(&cool_buffer," ");
+        char * output_string = cool_buffer;
 
-    printf("[subserver %d] received: [%s]\n", getpid(), buffer);
-    process(buffer);
-    write(client_socket, buffer, sizeof(buffer));
-  }//end read loop
-  close(client_socket);
-  exit(0);
+        int percentage = atoi(percentage_string);
+        int output = atoi(output_string);
+
+        final_data[percentage] = output;
+
+        int next_percentage = 0;
+        int i;
+        for (i = 0; i<100; i++){
+            if (final_data[i] == -1){
+                next_percentage = i+1;
+                break;
+            }
+        }
+
+        if (next_percentage == 0){
+            break;
+        }
+
+        char sending_data[100];
+        sprintf(sending_data,"%d %d %d", dim, next_percentage, repeat);
+        write(client_socket, sending_data, sizeof(sending_data));
+    }//end read loop
+    close(client_socket);
+    exit(0);
 }
 
 void process(char * s) {

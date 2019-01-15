@@ -4,6 +4,8 @@
 #include <time.h>
 #include <sys/types.h>
 #include <sys/wait.h>
+#include <sys/shm.h>
+#include <sys/ipc.h>
 #include <unistd.h>
 #include <ctype.h>
 #include <errno.h>
@@ -15,8 +17,7 @@
 #define RED "\x1B[31m"
 #define RESET "\x1B[0m"
 
-void process(char *s);
-void subserver(int from_client);
+void subserver(int client_socket, int shmid, int dim, int repeat);
 
 
 int has_fire(int length, int *** map){
@@ -224,7 +225,7 @@ int isNum(char *inp) {
 // one method for everything to run
 void run(int seed) {
     char inp[100];
-    int den, dim;
+    int den, dim,repeat;
     while (1) {
         printf(CYN "\n______________________________________________________\n\n" RESET);
         printf("What do you want to do? (please just type the number)\n1. calculate\n2. fork\n3. server setup\n");
@@ -366,7 +367,7 @@ void run(int seed) {
                 if (isNum(inp)) {
                     max_clients = atoi(inp);
                     if (max_clients > 30 || max_clients < 1) {
-                        printf(RED "\nInvalid input. Please enter a number between 0 and 30.\n" RESET);
+                        printf(RED "\nInvalid input. Please enter a number between 1 and 30.\n" RESET);
                     } else {
                         break;
                     }
@@ -375,51 +376,106 @@ void run(int seed) {
                 }
             }
 
+            while (1){
+                printf("Enter how many times you want each client to repeat the calculations: ");
+                fgets(inp, 100, stdin);
+                *strchr(inp, '\n') = 0;
+                if (isNum(inp)) {
+                    repeat = atoi(inp);
+                    if (repeat > 400 || max_clients < 1) {
+                        printf(RED "\nInvalid input. Please enter a number between 1 and 400.\n" RESET);
+                    } else {
+                        break;
+                    }
+                } else {
+                    printf(RED "\nInvalid input. Please just enter numbers.\n" RESET);
+                }
+            }
+
+            int all_clients[max_clients];
             int listen_socket;
             int f;
+            int shmid = shmget(12345,200*sizeof(int), 0644| IPC_CREAT);
             listen_socket = server_setup();
 
             while (1) {
+
                 int client_socket = server_connect(listen_socket);
+
+                all_clients[current_clients] = client_socket;
+
                 current_clients++;
+
                 f = fork();
                 if (f == 0){
-                    printf("\n[Server]: Hello new user");
-                    printf("\n[Server]: clients connected: %d",current_clients);
-                    subserver(client_socket);
+                    subserver(client_socket,shmid,dim,repeat);
+                    exit(0);
                 }
                 else {
                     close(client_socket);
                 }
+
+                if (current_clients == max_clients){
+                    break;
+                }
             }
+
+            int * final_data = shmat(shmid, 0, 0);
+
+            int i;
+            for (i=0; i<100; i++){
+                final_data[i] = 0;
+            }
+            char sending_data[100];
+            int l;
+            for (l=0; l<max_clients; l++){
+                printf("%d\n",all_clients[l]);
+                sprintf(sending_data,"%d %d %d", dim, l+1, repeat);
+                final_data[l] = -1;
+                write(all_clients[l],sending_data,sizeof(sending_data));
+            }
+            exit(0);
         }
     }
-}
+}//after number of clinets connected, make array of client sockets//initial
 
-//distrubute out stuff here
-void subserver(int client_socket) {
+void subserver(int client_socket, int shmid, int dim, int repeat) {
     char buffer[BUFFER_SIZE];
+    char * cool_buffer = malloc(BUFFER_SIZE);
 
-    while (1) {
-        fgets(buffer,1024,stdin);
-        write(client_socket, buffer, sizeof(buffer));
+    int * final_data = shmat(shmid, 0, 0);
 
-        read(client_socket, buffer, sizeof(buffer));
-        printf("[subserver %d] received: [%s]\n", getpid(), buffer);
-        process(buffer);
+    while (read(client_socket, buffer, sizeof(buffer))) {
+        //return percentage and avg turns
+        strcpy(cool_buffer,buffer);
+        char * percentage_string = cool_buffer;
+        strsep(&cool_buffer," ");
+        char * output_string = cool_buffer;
+
+        int percentage = atoi(percentage_string);
+        int output = atoi(output_string);
+
+        final_data[percentage] = output;
+
+        int next_percentage = 0;
+        int i;
+        for (i = 0; i<100; i++){
+            if (final_data[i] == -1){
+                next_percentage = i+1;
+                break;
+            }
+        }
+
+        if (next_percentage == 0){
+            break;
+        }
+
+        char sending_data[100];
+        sprintf(sending_data,"%d %d %d", dim, next_percentage, repeat);
+        write(client_socket, sending_data, sizeof(sending_data));
     }//end read loop
     close(client_socket);
     exit(0);
-}
-
-void process(char * s) {
-    while (*s) {
-        if (*s >= 'a' && *s <= 'z')
-        *s = ((*s - 'a') + 13) % 26 + 'a';
-        else  if (*s >= 'A' && *s <= 'Z')
-        *s = ((*s - 'a') + 13) % 26 + 'a';
-        s++;
-    }
 }
 
 int main() {
