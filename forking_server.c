@@ -445,7 +445,7 @@ void subserver(int client_socket, int shmid, int shmid2, int dim) {
         }
         //printf("received: [%s]. data2: [%d]\n", buffer, *data2);
     }
-
+    printf("Stop");
     close(client_socket);
     exit(0);
 }

@@ -167,13 +167,15 @@ int main(int argc, char **argv) {
 
             /* walk through other tokens */
             while(token != NULL ) {
-                printf("%s\n", token );
+                //printf("%s\n", token );
                 arr[i] = atoi(token);
                 i++;
                 token = strtok(NULL, delim);
             }
             int dim = arr[0];
             int den = arr[1];
+            printf("Density: %d%%\n",den);
+            //printf("Calculating burn time for a %d by %d forest with %d%% density.",dim,dim,den);
             free(arr);
             //calculate here
             for (i = 0; i < trials; i++) {
