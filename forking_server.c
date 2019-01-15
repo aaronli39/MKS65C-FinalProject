@@ -399,6 +399,7 @@ void subserver(int client_socket, int shmid, int shmid2, int dim) {
     int * data2 = (int*)shmat(shmid2,0,0);
     while (1) {
         int den = 0;
+        int finished = 0;
         if (*data2){
             den = -1;
             sprintf(buffer, "%d", wait);
