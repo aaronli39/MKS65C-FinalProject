@@ -17,7 +17,7 @@
 #define RED "\x1B[31m"
 #define RESET "\x1B[0m"
 
-void subserver(int client_socket, int shmid, int dim, int repeat);
+void subserver(int client_socket);
 
 
 int has_fire(int length, int *** map){
@@ -392,91 +392,138 @@ void run(int seed) {
                 }
             }
 
-            int all_clients[max_clients];
+            //int all_clients[max_clients];
+            //int shmid = shmget(12345,200*sizeof(int), 0644| IPC_CREAT);
             int listen_socket;
             int f;
-            int shmid = shmget(12345,200*sizeof(int), 0644| IPC_CREAT);
             listen_socket = server_setup();
 
             while (1) {
 
                 int client_socket = server_connect(listen_socket);
-
-                all_clients[current_clients] = client_socket;
-
-                current_clients++;
-
                 f = fork();
-                if (f == 0){
-                    subserver(client_socket,shmid,dim,repeat);
-                    exit(0);
-                }
-                else {
-                    close(client_socket);
-                }
-
-                if (current_clients == max_clients){
-                    break;
-                }
+                if (f == 0)
+                subserver(client_socket);
+                else
+                close(client_socket);
             }
-
-            int * final_data = shmat(shmid, 0, 0);
-
-            int i;
-            for (i=0; i<100; i++){
-                final_data[i] = 0;
-            }
-            char sending_data[100];
-            int l;
-            for (l=0; l<max_clients; l++){
-                printf("%d\n",all_clients[l]);
-                sprintf(sending_data,"%d %d %d", dim, l+1, repeat);
-                final_data[l] = -1;
-                write(all_clients[l],sending_data,sizeof(sending_data));
-            }
-            exit(0);
         }
     }
+}
+            /*
+            while (1) {
+
+            int client_socket = server_connect(listen_socket);
+
+            all_clients[current_clients] = client_socket;
+
+            current_clients++;
+
+            f = fork();
+            if (f == 0){
+            subserver(client_socket,shmid,dim,repeat);
+            exit(0);
+        }
+        else {
+        close(client_socket);
+    }
+
+    if (current_clients == max_clients){
+    break;
+}
+}
+
+int * final_data = shmat(shmid, 0, 0);
+
+int i;
+for (i=0; i<100; i++){
+final_data[i] = 0;
+}
+char sending_data[100];
+int l;
+for (l=0; l<max_clients; l++){
+printf("%d\n",all_clients[l]);
+sprintf(sending_data,"%d %d %d", dim, l+1, repeat);
+final_data[l] = -1;
+write(all_clients[l],sending_data,sizeof(sending_data));
+}
+exit(0);
+}
+}
 }//after number of clinets connected, make array of client sockets//initial
+*/
 
-void subserver(int client_socket, int shmid, int dim, int repeat) {
+void subserver(int client_socket) {
     char buffer[BUFFER_SIZE];
-    char * cool_buffer = malloc(BUFFER_SIZE);
+    int sum = 0;
+    int count = 0;
 
-    int * final_data = shmat(shmid, 0, 0);
+    while (1) {
+        // printf("enter data: ");
+        // fgets(buffer, sizeof(buffer), stdin);
+        // *strchr(buffer, '\n') = 0;
+        sprintf(buffer, "%d", count);
+        // count++;
+        write(client_socket, buffer, sizeof(buffer));
+        read(client_socket, buffer, sizeof(buffer));
+        sum += atoi(buffer);
+        printf("received: [%s]. current sum: [%d]\n", buffer, sum);
+    }
 
-    while (read(client_socket, buffer, sizeof(buffer))) {
-        //return percentage and avg turns
-        strcpy(cool_buffer,buffer);
-        char * percentage_string = cool_buffer;
-        strsep(&cool_buffer," ");
-        char * output_string = cool_buffer;
-
-        int percentage = atoi(percentage_string);
-        int output = atoi(output_string);
-
-        final_data[percentage] = output;
-
-        int next_percentage = 0;
-        int i;
-        for (i = 0; i<100; i++){
-            if (final_data[i] == -1){
-                next_percentage = i+1;
-                break;
-            }
-        }
-
-        if (next_percentage == 0){
-            break;
-        }
-
-        char sending_data[100];
-        sprintf(sending_data,"%d %d %d", dim, next_percentage, repeat);
-        write(client_socket, sending_data, sizeof(sending_data));
-    }//end read loop
     close(client_socket);
     exit(0);
 }
+
+void process(char * s) {
+    while (*s) {
+        if (*s >= 'a' && *s <= 'z')
+        *s = ((*s - 'a') + 13) % 26 + 'a';
+        else  if (*s >= 'A' && *s <= 'Z')
+        *s = ((*s - 'a') + 13) % 26 + 'a';
+        s++;
+    }
+}
+
+/*
+void subserver(int client_socket, int shmid, int dim, int repeat) {
+char buffer[BUFFER_SIZE];
+char * cool_buffer = malloc(BUFFER_SIZE);
+
+int * final_data = shmat(shmid, 0, 0);
+
+while (read(client_socket, buffer, sizeof(buffer))) {
+//return percentage and avg turns
+strcpy(cool_buffer,buffer);
+char * percentage_string = cool_buffer;
+strsep(&cool_buffer," ");
+char * output_string = cool_buffer;
+
+int percentage = atoi(percentage_string);
+int output = atoi(output_string);
+
+final_data[percentage] = output;
+
+int next_percentage = 0;
+int i;
+for (i = 0; i<100; i++){
+if (final_data[i] == -1){
+next_percentage = i+1;
+break;
+}
+}
+
+if (next_percentage == 0){
+break;
+}
+
+char sending_data[100];
+sprintf(sending_data,"%d %d %d", dim, next_percentage, repeat);
+write(client_socket, sending_data, sizeof(sending_data));
+}//end read loop
+close(client_socket);
+exit(0);
+}
+*/
 
 int main() {
     int seed = time(NULL);

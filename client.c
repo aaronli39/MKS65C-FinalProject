@@ -26,6 +26,7 @@ int main(int argc, char **argv) {
         // process(buffer);
         int temp = atoi(buffer);
         temp += 1;
+        sleep(1);
         sprintf(buffer, "%d", temp);
         write(server_socket, buffer, sizeof(buffer));
         printf("[client] sent: [%s]. temp was: [%d]\n", buffer, temp);
