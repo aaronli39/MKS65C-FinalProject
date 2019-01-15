@@ -33,3 +33,48 @@ and run the './server'
 5. However, this time, when you run the clients, you do './client bart.stuy.edu' or whatever the ip address of
 the host server is.
 6. Enjoy!
+
+##DEVLOG
+* **01/02/19**:
+Worked on the design document and planned out how we were going to tackle this project. Created the repository.
+
+* **01/04/19**:
+Built the map that would be needed to help the tree burning algorithm function.
+Made the trees randomly generate.
+
+* **01/06/19**:
+First attempt at making the algorithm for spreading fires using the frontier based method.
+
+* **01/07/19**:
+Fixed some bugs with the frontier based method and changed the formatting of test
+printing the map.
+
+* **01/08/19**:
+Repaired essential bugs that were not noticed before. Made the algorithm work correctly.
+Added the system of selecting which methods of calculating the user wants to use.
+
+* **01/09/19**:
+Added user input on the density and dimensions of the forest when making simulations.
+
+* **01/10/19**:
+Created non-frontier method of burning forests. Fixed the simulation algorithms again
+so that they match in results.
+
+* **01/11/19**:
+Added forking to the simulations so that multiple cores or threads can be used at once.
+
+* **01/12/19**:
+Added error checking with the input as well as beautifying a lot of code and made
+text-interaction more intuitive and simple. Did a lot of minor fixes in code/beautifying.
+
+* **01/14/19**:
+Made the breakthrough between implementing server input and making clients do work. This was
+done through switching read/write loops in the forking server and the client. We were stuck
+before this breakthrough on how to actually implement servers. I worked on client.c while Jason
+worked on forking server. We voice chatted and discussed the whole process, from comma separated
+inputs to parsers and then feeding it in/out of the buffer in order to feed it into our calculate methods.
+We worked very well.
+
+* **01/15/19**:
+Added graphs to display data and did minor bug fixes to ensure that user has best experience and that
+demo doesn't mess up. Added timer for functions and prettified experience.

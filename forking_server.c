@@ -195,7 +195,7 @@ void run(int seed) {
     int den, dim,repeat;
     while (1) {
         printf(CYN "\n______________________________________________________\n\n" RESET);
-        printf("What do you want to do? (please just type the number)\n1. calculate\n2. fork\n3. server setup\n");
+        printf("What do you want to do? (Please just type the number and press <ENTER>.)\n1. Calculate\n2. Fork\n3. Setup server\n");
         fgets(inp, 100, stdin);
         *strchr(inp, '\n') = 0;
 
@@ -205,18 +205,18 @@ void run(int seed) {
         } else if (strcmp(inp, "1") == 0) { // calculating 1 density with specified dimensions
             while (1) {
                 // get user input
-                printf("\nDesired density: \n");
+                printf("\nDesired density (From 1 to 100): \n");
                 fgets(inp, 100, stdin);
                 *strchr(inp, '\n') = 0;
                 if (isNum(inp)) {
                     den = atoi(inp);
-                    if (den > 100 || den < 0) {
-                        printf(RED "\nInvalid input. Please enter a density between 0 and 100.\n" RESET);
+                    if (den > 100 || den < 1) {
+                        printf(RED "\nInvalid input. Please enter a density between 1 and 100.\n" RESET);
                     } else {
                         break;
                     }
                 } else {
-                    printf(RED "\nInvalid input. Please just enter the number of the choice you wish to make.\n" RESET);
+                    printf(RED "\nInvalid input. Please just enter a number.\n" RESET);
                 }
             }
 
@@ -231,11 +231,11 @@ void run(int seed) {
                     printf(RED "\nInvalid input. Please just enter numbers.\n" RESET);
                 }
             }
-            printf(YEL "\nYou entered: den -> %d, dim -> %d\n" RESET, den, dim);
+            printf(YEL "\nCalculating for Density: %d%%; Dimensions: %d\n" RESET, den, dim);
 
             int method_num = 0;
             while (1) {
-                printf("\nCalculation Method (Enter number):\n1.Non_frontier\n2.Frontier\n");
+                printf("\nCalculation Method (Enter number):\n1.Non Frontier\n2.Frontier\n");
                 fgets(inp, 100, stdin);
                 *strchr(inp, '\n') = 0;
                 if (isNum(inp)) {
@@ -251,15 +251,25 @@ void run(int seed) {
             }
 
             if (method_num == 1){
-                printf("\n# of turns(non_frontier): " GRN "%d\n" RESET, non_frontier(dim, den));
+                clock_t t;
+                t = clock();
+                printf("\n# of turns(Non frontier): " GRN "%d\n" RESET, non_frontier(dim, den));
+                t = clock() - t;
+                double time_taken = ((double)t)/CLOCKS_PER_SEC;
+                printf("\nTime taken to calculate: %f seconds\n",time_taken);
             }
             else if (method_num == 2){
-                printf("\n# of turns(frontier): " GRN "%d\n" RESET, calculate(dim, den));
+                clock_t t;
+                t = clock();
+                printf("\n# of turns(Frontier): " GRN "%d\n" RESET, calculate(dim, den));
+                t = clock() - t;
+                double time_taken = ((double)t)/CLOCKS_PER_SEC;
+                printf("\nTime taken to calculate: %f seconds\n",time_taken);
             }
         } else if (strcmp(inp, "2") == 0) { // using forking to run multiple times
             while (1) {
                 // get user input
-                printf("\nDesired density: \n");
+                printf("\nDesired density (From 1 to 100): \n");
                 fgets(inp, 100, stdin);
                 *strchr(inp, '\n') = 0;
                 if (isNum(inp)) {
@@ -285,7 +295,7 @@ void run(int seed) {
                     printf(RED "\nInvalid input. Please just enter numbers.\n" RESET);
                 }
             }
-            printf(YEL "\nYou entered: den -> %d, dim -> %d\n" RESET, den, dim);
+            printf(YEL "\nCalculating for Density: %d%%; Dimensions: %d\n" RESET, den, dim);
 
             // forking twice
             int pipe_fd[2];
@@ -294,15 +304,15 @@ void run(int seed) {
 
             int num_cores = 2;
             int i;
+
             for (i = 0; i < num_cores; i++) {
                 int child_pid = fork();
                 if (child_pid == 0) { // child
                     close(pipe_fd[0]); // closes the reading end
 
-                    seed = time(NULL);
+                    int seed = time(NULL);
                     srand(seed + i);
                     int result = calculate(dim, den);
-                    printf("current resultn: %d\n", result);
                     char str_result[20];
                     sprintf(str_result, "%d", result);
                     write(pipe_fd[1], str_result, strlen(str_result) + 1);
@@ -313,22 +323,27 @@ void run(int seed) {
             int all_results[num_cores];
             int num_results = 0;
             close(pipe_fd[1]); //Closes the write end of the pipe
+
             while (num_results < num_cores){
                 char returned_result[20];
                 read(pipe_fd[0], returned_result, 20);
                 all_results[num_results] = atoi(returned_result);
                 num_results++;
+                printf("One result: %s\n",returned_result);
             }
 
             int averaged = 0;
             for (i = 0; i < num_cores; i++){
                 averaged += all_results[i];
-            } printf("\nAveraged Results: " GRN "%d\n" RESET, averaged / num_cores);
+            }
+            averaged = averaged / num_cores;
+            printf("\nAveraged Results: " GRN "%d\n" RESET, averaged);
+
         } else if (strcmp(inp,"3") == 0) { // using clients and server
             int max_clients = 0;
             int current_clients = 0;
             while (1) {
-                printf("\nHow many clients do you want connected: \n");
+                printf("\nHow many clients do you want connected (1 to 30): \n");
                 fgets(inp, 100, stdin);
                 *strchr(inp, '\n') = 0;
                 if (isNum(inp)) {
@@ -344,7 +359,7 @@ void run(int seed) {
             }
 
             while (1){
-                printf("Dimensions: \n");
+                printf("Desired dimensions: \n");
                 fgets(inp, 100, stdin);
                 *strchr(inp, '\n') = 0;
                 if (isNum(inp)) {
@@ -373,6 +388,7 @@ void run(int seed) {
             int f;
             listen_socket = server_setup();
 
+            clock_t t;
             while (1) {
                 if (current_clients < max_clients) {
                     int client_socket = server_connect(listen_socket);
@@ -384,13 +400,19 @@ void run(int seed) {
                     close(client_socket);
                 }
                 else if (*data2 == 1){
+                    sleep(1);
+                    t = clock();
+                    printf(YEL "\nCalculating for Dimensions: %d across all densities...\n" RESET,dim);
                     *data2 = 0;
                 }
                 else if (*data2 == 2){
                     print_graph(data);
                     shmctl(shmid, IPC_RMID, NULL);
                     shmctl(shmid2, IPC_RMID, NULL);
-                    exit(0);
+                    t = clock() - t;
+                    double time_taken = ((double)t)/CLOCKS_PER_SEC;
+                    printf("\nTime taken to calculate: %f seconds\n",time_taken);
+                    break;
                 }
             }
         }
