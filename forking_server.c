@@ -231,7 +231,6 @@ void run(int seed) {
                     printf(RED "\nInvalid input. Please just enter numbers.\n" RESET);
                 }
             }
-            printf(YEL "\nCalculating for Density: %d%%; Dimensions: %d\n" RESET, den, dim);
 
             int method_num = 0;
             while (1) {
@@ -249,6 +248,8 @@ void run(int seed) {
                     printf(RED "\nInvalid input. Please just enter the number of the choice you wish to make.\n" RESET);
                 }
             }
+
+            printf(YEL "\nCalculating for Density: %d%%; Dimensions: %d\n" RESET, den, dim);
 
             if (method_num == 1){
                 clock_t t;
@@ -394,8 +395,10 @@ void run(int seed) {
                     int client_socket = server_connect(listen_socket);
                     current_clients++;
                     f = fork();
-                    if (f == 0)
-                    subserver(client_socket, shmid, shmid2, dim);
+                    if (f == 0){
+                        subserver(client_socket, shmid, shmid2, dim);
+                        close(client_socket);
+                    }
                     else
                     close(client_socket);
                 }
@@ -508,7 +511,7 @@ void print_graph(int * data){
         if (i%10 == 0){
             float avg = ten_avg/10;
             int num_tiles = (int)((avg / max_value) * 100) / 2;
-            printf("%2d%%: ",(i/10)*10);
+            printf("%2d%% - %2d%%: ",i,i+9);
             int j;
             for (j=0; j<50; j++){
                 if (j<num_tiles){

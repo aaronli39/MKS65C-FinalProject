@@ -81,8 +81,6 @@ int calculate(int length, int density) {
                 map[row][col+1] = 2;
                 num_temp++;
             }
-            // printf("%d, m:%d\n",k,m);
-            // printf("%d\n", k);
         }
         fire_locations = temp_locations;
         num_fire = num_temp;
@@ -94,7 +92,7 @@ int calculate(int length, int density) {
 
 // using 2 cores, makes each client run calculate 10 times
 // and return the average for a total of 2 * 10 trials(cores * 10 times)
-int meanCalc(int dim, int den) {
+int meanCalc(int dim, int den, int trial_num) {
     // forking twice
     int pipe_fd[2];
     // 0: Read, 1: Write
@@ -108,7 +106,7 @@ int meanCalc(int dim, int den) {
             close(pipe_fd[0]); // closes the reading end
 
             int seed = time(NULL);
-            srand(seed + i);
+            srand(seed +100*trial_num + i);
             int result = calculate(dim, den);
             char str_result[20];
             sprintf(str_result, "%d", result);
@@ -181,8 +179,9 @@ int main(int argc, char **argv) {
             free(arr);
             //calculate here
             for (i = 0; i < trials; i++) {
-                sum += meanCalc(dim, den);
-            } sum = sum / trials;
+                sum += meanCalc(dim, den, i);
+            }
+            sum = sum / trials;
             sprintf(buffer, "%d,%d", den, (int)sum);
             //printf("[client] sent: [%s]. avg was: [%d] for density [%d]\n", buffer, sum, den);
         }
