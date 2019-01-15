@@ -17,7 +17,7 @@
 #define RED "\x1B[31m"
 #define RESET "\x1B[0m"
 
-void subserver(int client_socket);
+void subserver(int client_socket, int shmid, int shmid2, int dim);
 
 
 int has_fire(int length, int *** map){
@@ -377,13 +377,13 @@ void run(int seed) {
             }
 
             while (1){
-                printf("Enter how many times you want each client to repeat the calculations: ");
+                printf("Dimensions: \n");
                 fgets(inp, 100, stdin);
                 *strchr(inp, '\n') = 0;
                 if (isNum(inp)) {
-                    repeat = atoi(inp);
-                    if (repeat > 400 || max_clients < 1) {
-                        printf(RED "\nInvalid input. Please enter a number between 1 and 400.\n" RESET);
+                    dim = atoi(inp);
+                    if (dim > 20000 || max_clients < 1) {
+                        printf(RED "\nInvalid input. Please enter a number between 1 and 20000.\n" RESET);
                     } else {
                         break;
                     }
@@ -392,82 +392,63 @@ void run(int seed) {
                 }
             }
 
-            //int all_clients[max_clients];
-            //int shmid = shmget(12345,200*sizeof(int), 0644| IPC_CREAT);
+            int shmid = shmget(0xC00FFEE,200*sizeof(int), 0644| IPC_CREAT);
+            int shmid2 = shmget(0xDEADBEEF,2*sizeof(int), 0644| IPC_CREAT);
+            int * data = (int*)shmat(shmid, 0, 0);
+            int * data2 = (int*)shmat(shmid2, 0, 0);
+            *data2= 1;
+
+            int i;
+            for (i=0; i<100; i++){
+                data[i] = 0;
+            }
             int listen_socket;
             int f;
             listen_socket = server_setup();
 
             while (1) {
-
-                int client_socket = server_connect(listen_socket);
-                f = fork();
-                if (f == 0)
-                subserver(client_socket);
-                else
-                close(client_socket);
+                if (current_clients < max_clients) {
+                    int client_socket = server_connect(listen_socket);
+                    current_clients++;
+                    f = fork();
+                    if (f == 0)
+                    subserver(client_socket, shmid, shmid2, dim);
+                    else
+                    close(client_socket);
+                }
+                else if (*data2 == 1){
+                    *data2 = 0;
+                }
             }
         }
     }
 }
-            /*
-            while (1) {
 
-            int client_socket = server_connect(listen_socket);
+void subserver(int client_socket, int shmid, int shmid2, int dim) {
+    char buffer[BUFFER_SIZE];
+    int wait = 1;
 
-            all_clients[current_clients] = client_socket;
-
-            current_clients++;
-
-            f = fork();
-            if (f == 0){
-            subserver(client_socket,shmid,dim,repeat);
-            exit(0);
+    int * data = (int*)shmat(shmid,0,0);
+    int * data2 = (int*)shmat(shmid2,0,0);
+    while (1) {
+        if (*data2){
+            sprintf(buffer, "%d", wait);
         }
         else {
-        close(client_socket);
-    }
-
-    if (current_clients == max_clients){
-    break;
-}
-}
-
-int * final_data = shmat(shmid, 0, 0);
-
-int i;
-for (i=0; i<100; i++){
-final_data[i] = 0;
-}
-char sending_data[100];
-int l;
-for (l=0; l<max_clients; l++){
-printf("%d\n",all_clients[l]);
-sprintf(sending_data,"%d %d %d", dim, l+1, repeat);
-final_data[l] = -1;
-write(all_clients[l],sending_data,sizeof(sending_data));
-}
-exit(0);
-}
-}
-}//after number of clinets connected, make array of client sockets//initial
-*/
-
-void subserver(int client_socket) {
-    char buffer[BUFFER_SIZE];
-    int sum = 0;
-    int count = 0;
-
-    while (1) {
-        // printf("enter data: ");
-        // fgets(buffer, sizeof(buffer), stdin);
-        // *strchr(buffer, '\n') = 0;
-        sprintf(buffer, "%d", count);
-        // count++;
+            int i;
+            int den = 0;
+            for (i=0; i<100; i++){
+                if (data[i] == 0){
+                    den = i+99;
+                    break;
+                }
+            }
+            sprintf(buffer, "%d,%d", dim,den);
+        }
         write(client_socket, buffer, sizeof(buffer));
         read(client_socket, buffer, sizeof(buffer));
-        sum += atoi(buffer);
-        printf("received: [%s]. current sum: [%d]\n", buffer, sum);
+
+        printf("received: [%s]. data2: [%d]\n", buffer, *data2);
     }
 
     close(client_socket);
@@ -525,7 +506,9 @@ exit(0);
 }
 */
 
+
 int main() {
+
     int seed = time(NULL);
     //srand(1446978541);
     srand(seed);

@@ -25,11 +25,19 @@ int main(int argc, char **argv) {
         printf("[client] received: [%s]\n", buffer);
         // process(buffer);
         int temp = atoi(buffer);
-        temp += 1;
-        sleep(1);
-        sprintf(buffer, "%d", temp);
+        if (temp == 1){
+            printf("%s","not ready");
+            sleep(1);
+            sprintf(buffer, "%d", temp);
+        }
+        else {
+            printf("%s","ready");
+            sleep(1);
+            sprintf(buffer, "%d", temp);
+        }
+
         write(server_socket, buffer, sizeof(buffer));
-        printf("[client] sent: [%s]. temp was: [%d]\n", buffer, temp);
+        //printf("[client] sent: [%s]. temp was: [%d]\n", buffer, temp);
     }//end read loop
 
 }
