@@ -1,14 +1,3 @@
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
-#include <time.h>
-#include <sys/types.h>
-#include <sys/wait.h>
-#include <sys/shm.h>
-#include <sys/ipc.h>
-#include <unistd.h>
-#include <ctype.h>
-#include <errno.h>
 #include "networking.h"
 
 #define YEL "\x1B[33m"
@@ -431,24 +420,51 @@ void subserver(int client_socket, int shmid, int shmid2, int dim) {
     int * data = (int*)shmat(shmid,0,0);
     int * data2 = (int*)shmat(shmid2,0,0);
     while (1) {
+        int den = 0;
         if (*data2){
             sprintf(buffer, "%d", wait);
         }
         else {
             int i;
-            int den = 0;
             for (i=0; i<100; i++){
                 if (data[i] == 0){
-                    den = i+99;
+                    den = i+1;
+                    data[i] = -1;
                     break;
                 }
             }
             sprintf(buffer, "%d,%d", dim,den);
         }
+
+        if (den == 0){
+            break;
+        }
         write(client_socket, buffer, sizeof(buffer));
         read(client_socket, buffer, sizeof(buffer));
+        char str[1024];
+        strcpy(str,buffer);
+        const char delim[2] = ",";
+        char *token;
+        int *arr = (int*)calloc(2, sizeof(int));
+        int i = 0;
+        /* get the first token */
+        token = strtok(str, delim);
+
+        /* walk through other tokens */
+        while( token != NULL ) {
+            printf( "%s\n", token );
+            arr[i] = atoi(token);
+            i++;
+
+            token = strtok(NULL, delim);
+        }
+        int den_index = arr[0];
+        int result = arr[1];
+        free(arr);
+        data[den_index] = result;
 
         printf("received: [%s]. data2: [%d]\n", buffer, *data2);
+
     }
 
     close(client_socket);

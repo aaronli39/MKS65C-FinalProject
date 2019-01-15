@@ -31,6 +31,7 @@ int main(int argc, char **argv) {
             sprintf(buffer, "%d", temp);
         }
         else {
+            //calculate here
             printf("%s","ready");
             sleep(1);
             sprintf(buffer, "%d", temp);
