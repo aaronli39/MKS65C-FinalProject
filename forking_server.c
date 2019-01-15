@@ -473,6 +473,7 @@ void print_graph(int * data){
     int max_value = 0;
     int i;
     int ten_avg = 0;
+    printf("\n==========General Averages==========\n");
     for (i=0; i<100; i++){
         if (data[i] > max_value){
             max_index = i;
@@ -489,11 +490,12 @@ void print_graph(int * data){
 
     int start = 0;
     if (max_index > 11 && max_index < 89){
-        start = max_index+5;
+        start = max_index-5;
     }
     else if (max_index >= 89){
         start = 89;
     }
+    printf("\n==========Near the Maximum==========\n");
     for (i=start; i<start+11; i++){
         printf("%d%%: %d\n",i,data[i]);
     }
