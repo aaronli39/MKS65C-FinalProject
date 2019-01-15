@@ -34,7 +34,7 @@ and run the `./server`
 the host server is.
 6. Enjoy!
 
-##DEVLOG
+## DEVLOG
 * **01/02/19**:
 Worked on the design document and planned out how we were going to tackle this project. Created the repository.
 
