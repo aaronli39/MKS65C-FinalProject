@@ -494,15 +494,31 @@ void print_graph(int * data){
     int max_index = 0;
     int max_value = 0;
     int i;
-    int ten_avg = 0;
-    printf("\n==========General Averages==========\n");
+
+    printf("\n======================General Averages======================\n");
     for (i=0; i<100; i++){
         if (data[i] > max_value){
             max_index = i;
             max_value = data[i];
         }
+    }
+
+    int ten_avg = 0;
+    for (i=0; i<100; i++){
         if (i%10 == 0){
-            printf("%d%%: %d\n",(i/10)*10,ten_avg/10);
+            float avg = ten_avg/10;
+            int num_tiles = (int)((avg / max_value) * 100) / 2;
+            printf("%2d%%: ",(i/10)*10);
+            int j;
+            for (j=0; j<50; j++){
+                if (j<num_tiles){
+                    printf("%s","▓");
+                }
+                else {
+                    printf("%s","░");
+                }
+            }
+            printf(" %d\n\n",(int)avg);
             ten_avg = 0;
         }
         else {
@@ -517,9 +533,20 @@ void print_graph(int * data){
     else if (max_index >= 89){
         start = 89;
     }
-    printf("\n==========Near the Maximum==========\n");
+    printf("\n======================Near the Maximum======================\n");
     for (i=start; i<start+11; i++){
-        printf("%d%%: %d\n",i,data[i]);
+        int num_tiles = (int)(((float)data[i]/ max_value) * 100) / 2;
+        printf("%d%%: ",i);
+        int j;
+        for (j=0; j<50; j++){
+            if (j<num_tiles){
+                printf("%s","▓");
+            }
+            else {
+                printf("%s","░");
+            }
+        }
+        printf(" %d\n\n",data[i]);
     }
 }
 

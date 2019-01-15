@@ -152,7 +152,7 @@ int main(int argc, char **argv) {
             sprintf(buffer, "%d", temp);
         }
         else {
-            int trials = 20;
+            int trials = 30;
             int i = 0;
             float sum = 0;
             //printf("[client] received: [%s]\n", buffer);
