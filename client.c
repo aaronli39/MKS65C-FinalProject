@@ -239,6 +239,7 @@ int main(int argc, char **argv) {
         int trials = 10;
         int i, sum;
         printf("[client] received: [%s]\n", buffer);
+<<<<<<< HEAD
 
         // change buffer into dim/den
         char str[1024];
@@ -272,6 +273,23 @@ int main(int argc, char **argv) {
 
         write(server_socket, buffer, sizeof(buffer));
         printf("[client] sent: [%s]. avg was: [%d] for density [%d]\n", buffer, sum, den);
+=======
+        // process(buffer);
+        int temp = atoi(buffer);
+        if (temp == 1){
+            printf("%s","not ready");
+            sleep(1);
+            sprintf(buffer, "%d", temp);
+        }
+        else {
+            printf("%s","ready");
+            sleep(1);
+            sprintf(buffer, "%d", temp);
+        }
+
+        write(server_socket, buffer, sizeof(buffer));
+        //printf("[client] sent: [%s]. temp was: [%d]\n", buffer, temp);
+>>>>>>> 1428e6d9de63976a01a25107e3227a38509f4953
     }//end read loop
 }
 

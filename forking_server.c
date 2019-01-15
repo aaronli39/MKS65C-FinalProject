@@ -17,7 +17,7 @@
 #define RED "\x1B[31m"
 #define RESET "\x1B[0m"
 
-void subserver(int client_socket, int shmid, int dim, int repeat);
+void subserver(int client_socket, int shmid, int shmid2, int dim);
 
 
 int has_fire(int length, int *** map){
@@ -377,13 +377,13 @@ void run(int seed) {
             }
 
             while (1){
-                printf("Enter how many times you want each client to repeat the calculations: ");
+                printf("Dimensions: \n");
                 fgets(inp, 100, stdin);
                 *strchr(inp, '\n') = 0;
                 if (isNum(inp)) {
-                    repeat = atoi(inp);
-                    if (repeat > 400 || max_clients < 1) {
-                        printf(RED "\nInvalid input. Please enter a number between 1 and 400.\n" RESET);
+                    dim = atoi(inp);
+                    if (dim > 20000 || max_clients < 1) {
+                        printf(RED "\nInvalid input. Please enter a number between 1 and 20000.\n" RESET);
                     } else {
                         break;
                     }
@@ -392,93 +392,123 @@ void run(int seed) {
                 }
             }
 
-            int all_clients[max_clients];
-            int listen_socket;
-            int f;
-            int shmid = shmget(12345,200*sizeof(int), 0644| IPC_CREAT);
-            listen_socket = server_setup();
-
-            while (1) {
-
-                int client_socket = server_connect(listen_socket);
-
-                all_clients[current_clients] = client_socket;
-
-                current_clients++;
-
-                f = fork();
-                if (f == 0){
-                    subserver(client_socket,shmid,dim,repeat);
-                    exit(0);
-                }
-                else {
-                    close(client_socket);
-                }
-
-                if (current_clients == max_clients){
-                    break;
-                }
-            }
-
-            int * final_data = shmat(shmid, 0, 0);
+            int shmid = shmget(0xC00FFEE,200*sizeof(int), 0644| IPC_CREAT);
+            int shmid2 = shmget(0xDEADBEEF,2*sizeof(int), 0644| IPC_CREAT);
+            int * data = (int*)shmat(shmid, 0, 0);
+            int * data2 = (int*)shmat(shmid2, 0, 0);
+            *data2= 1;
 
             int i;
             for (i=0; i<100; i++){
-                final_data[i] = 0;
+                data[i] = 0;
             }
-            char sending_data[100];
-            int l;
-            for (l=0; l<max_clients; l++){
-                printf("%d\n",all_clients[l]);
-                sprintf(sending_data,"%d %d %d", dim, l+1, repeat);
-                final_data[l] = -1;
-                write(all_clients[l],sending_data,sizeof(sending_data));
+            int listen_socket;
+            int f;
+            listen_socket = server_setup();
+
+            while (1) {
+                if (current_clients < max_clients) {
+                    int client_socket = server_connect(listen_socket);
+                    current_clients++;
+                    f = fork();
+                    if (f == 0)
+                    subserver(client_socket, shmid, shmid2, dim);
+                    else
+                    close(client_socket);
+                }
+                else if (*data2 == 1){
+                    *data2 = 0;
+                }
             }
-            exit(0);
         }
     }
-}//after number of clinets connected, make array of client sockets//initial
+}
 
-void subserver(int client_socket, int shmid, int dim, int repeat) {
+void subserver(int client_socket, int shmid, int shmid2, int dim) {
     char buffer[BUFFER_SIZE];
-    char * cool_buffer = malloc(BUFFER_SIZE);
+    int wait = 1;
 
-    int * final_data = shmat(shmid, 0, 0);
-
-    while (read(client_socket, buffer, sizeof(buffer))) {
-        //return percentage and avg turns
-        strcpy(cool_buffer,buffer);
-        char * percentage_string = cool_buffer;
-        strsep(&cool_buffer," ");
-        char * output_string = cool_buffer;
-
-        int percentage = atoi(percentage_string);
-        int output = atoi(output_string);
-
-        final_data[percentage] = output;
-
-        int next_percentage = 0;
-        int i;
-        for (i = 0; i<100; i++){
-            if (final_data[i] == -1){
-                next_percentage = i+1;
-                break;
+    int * data = (int*)shmat(shmid,0,0);
+    int * data2 = (int*)shmat(shmid2,0,0);
+    while (1) {
+        if (*data2){
+            sprintf(buffer, "%d", wait);
+        }
+        else {
+            int i;
+            int den = 0;
+            for (i=0; i<100; i++){
+                if (data[i] == 0){
+                    den = i+99;
+                    break;
+                }
             }
+            sprintf(buffer, "%d,%d", dim,den);
         }
+        write(client_socket, buffer, sizeof(buffer));
+        read(client_socket, buffer, sizeof(buffer));
 
-        if (next_percentage == 0){
-            break;
-        }
+        printf("received: [%s]. data2: [%d]\n", buffer, *data2);
+    }
 
-        char sending_data[100];
-        sprintf(sending_data,"%d %d %d", dim, next_percentage, repeat);
-        write(client_socket, sending_data, sizeof(sending_data));
-    }//end read loop
     close(client_socket);
     exit(0);
 }
 
+void process(char * s) {
+    while (*s) {
+        if (*s >= 'a' && *s <= 'z')
+        *s = ((*s - 'a') + 13) % 26 + 'a';
+        else  if (*s >= 'A' && *s <= 'Z')
+        *s = ((*s - 'a') + 13) % 26 + 'a';
+        s++;
+    }
+}
+
+/*
+void subserver(int client_socket, int shmid, int dim, int repeat) {
+char buffer[BUFFER_SIZE];
+char * cool_buffer = malloc(BUFFER_SIZE);
+
+int * final_data = shmat(shmid, 0, 0);
+
+while (read(client_socket, buffer, sizeof(buffer))) {
+//return percentage and avg turns
+strcpy(cool_buffer,buffer);
+char * percentage_string = cool_buffer;
+strsep(&cool_buffer," ");
+char * output_string = cool_buffer;
+
+int percentage = atoi(percentage_string);
+int output = atoi(output_string);
+
+final_data[percentage] = output;
+
+int next_percentage = 0;
+int i;
+for (i = 0; i<100; i++){
+if (final_data[i] == -1){
+next_percentage = i+1;
+break;
+}
+}
+
+if (next_percentage == 0){
+break;
+}
+
+char sending_data[100];
+sprintf(sending_data,"%d %d %d", dim, next_percentage, repeat);
+write(client_socket, sending_data, sizeof(sending_data));
+}//end read loop
+close(client_socket);
+exit(0);
+}
+*/
+
+
 int main() {
+
     int seed = time(NULL);
     //srand(1446978541);
     srand(seed);
