@@ -1,23 +1,5 @@
 #include "networking.h"
 
-int main(int argc, char **argv) {
-
-    int server_socket;
-    char buffer[BUFFER_SIZE];
-    char * cool_buffer = malloc(BUFFER_SIZE);
-
-    if (argc == 2)
-    server_socket = client_setup( argv[1]);
-    else
-    server_socket = client_setup( TEST_IP );
-    
-    while (read(server_socket, buffer, sizeof(buffer))) {
-        printf("here i am");
-        strcpy(cool_buffer,buffer);
-        printf("%s",cool_buffer);
-    }
-}
-
 void process(char * s) {
     while (*s) {
         if (*s >= 'a' && *s <= 'z')
@@ -26,4 +8,27 @@ void process(char * s) {
         *s = ((*s - 'a') + 13) % 26 + 'a';
         s++;
     }
+}
+
+int main(int argc, char **argv) {
+
+    int server_socket;
+    char buffer[BUFFER_SIZE];
+
+    if (argc == 2)
+    server_socket = client_setup( argv[1]);
+    else
+    server_socket = client_setup( TEST_IP );
+
+    while (read(server_socket, buffer, sizeof(buffer))) {
+
+        printf("[client] received: [%s]\n", buffer);
+        // process(buffer);
+        int temp = atoi(buffer);
+        temp += 1;
+        sprintf(buffer, "%d", temp);
+        write(server_socket, buffer, sizeof(buffer));
+        printf("[client] sent: [%s]. temp was: [%d]\n", buffer, temp);
+    }//end read loop
+
 }
