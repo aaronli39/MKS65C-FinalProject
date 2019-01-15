@@ -511,7 +511,7 @@ void print_graph(int * data){
         if (i%10 == 0){
             float avg = ten_avg/10;
             int num_tiles = (int)((avg / max_value) * 100) / 2;
-            printf("%2d%% - %2d%%: ",i,i+9);
+            printf("%2d%% - %2d%%: ",i+1,i+10);
             int j;
             for (j=0; j<50; j++){
                 if (j<num_tiles){
