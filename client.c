@@ -143,7 +143,7 @@ int main(int argc, char **argv) {
     server_socket = client_setup( argv[1]);
     else
     server_socket = client_setup( TEST_IP );
-
+    printf("Successfully connected to server. Waiting for others to connect...\n");
     while (read(server_socket, buffer, sizeof(buffer))) {
         int temp = atoi(buffer);
         if (temp == 1){

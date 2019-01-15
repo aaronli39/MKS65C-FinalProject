@@ -1,7 +1,7 @@
 #include "networking.h"
 
 void subserver(int client_socket, int shmid, int shmid2, int dim);
-
+void print_graph(int * arr);
 
 int has_fire(int length, int *** map){
     int i,j;
@@ -386,6 +386,12 @@ void run(int seed) {
                 else if (*data2 == 1){
                     *data2 = 0;
                 }
+                else if (*data2 == 2){
+                    print_graph(data);
+                    shmctl(shmid, IPC_RMID, NULL);
+                    shmctl(shmid2, IPC_RMID, NULL);
+                    exit(0);
+                }
             }
         }
     }
@@ -394,12 +400,11 @@ void run(int seed) {
 void subserver(int client_socket, int shmid, int shmid2, int dim) {
     char buffer[BUFFER_SIZE];
     int wait = 1;
-
+    printf("A client has connected!\n");
     int * data = (int*)shmat(shmid,0,0);
     int * data2 = (int*)shmat(shmid2,0,0);
     while (1) {
         int den = 0;
-        int finished = 0;
         if (*data2){
             den = -1;
             sprintf(buffer, "%d", wait);
@@ -422,7 +427,7 @@ void subserver(int client_socket, int shmid, int shmid2, int dim) {
         write(client_socket, buffer, sizeof(buffer));
         read(client_socket, buffer, sizeof(buffer));
 
-        if (*data2){
+        if (!*data2){
             char str[1024];
             strcpy(str,buffer);
             const char delim[2] = ",";
@@ -441,23 +446,56 @@ void subserver(int client_socket, int shmid, int shmid2, int dim) {
             }
             int den_index = arr[0];
             int result = arr[1];
+            data[den_index-1] = result;
             free(arr);
-            data[den_index] = result;
+
         }
         //printf("received: [%s]. data2: [%d]\n", buffer, *data2);
     }
-    printf("Stop");
+    int finished = 1;
+    int j;
+    for (j=0; j<100; j++){
+        if (data[j] == -1){
+            finished=0;
+        }
+    }
+
+    if (finished){
+        *data2 = 2;
+    }
+
     close(client_socket);
     exit(0);
 }
 
-void process(char * s) {
-    while (*s) {
-        if (*s >= 'a' && *s <= 'z')
-        *s = ((*s - 'a') + 13) % 26 + 'a';
-        else  if (*s >= 'A' && *s <= 'Z')
-        *s = ((*s - 'a') + 13) % 26 + 'a';
-        s++;
+void print_graph(int * data){
+    int max_index = 0;
+    int max_value = 0;
+    int i;
+    int ten_avg = 0;
+    for (i=0; i<100; i++){
+        if (data[i] > max_value){
+            max_index = i;
+            max_value = data[i];
+        }
+        if (i%10 == 0){
+            printf("%d%%: %d\n",(i/10)*10,ten_avg/10);
+            ten_avg = 0;
+        }
+        else {
+            ten_avg += data[i];
+        }
+    }
+
+    int start = 0;
+    if (max_index > 11 && max_index < 89){
+        start = max_index+5;
+    }
+    else if (max_index >= 89){
+        start = 89;
+    }
+    for (i=start; i<start+11; i++){
+        printf("%d%%: %d\n",i,data[i]);
     }
 }
 
