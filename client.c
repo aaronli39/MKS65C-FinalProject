@@ -174,7 +174,6 @@ int main(int argc, char **argv) {
             int dim = arr[0];
             int den = arr[1];
 
-            printf("Density: %d%%\n\n",den);
             //printf("Calculating burn time for a %d by %d forest with %d%% density.",dim,dim,den);
             free(arr);
             //calculate here
@@ -182,6 +181,7 @@ int main(int argc, char **argv) {
                 sum += meanCalc(dim, den, i);
             }
             sum = sum / trials;
+            printf("Density: %d%%. Result: %d\n\n",den, (int) sum);
             sprintf(buffer, "%d,%d", den, (int)sum);
             //printf("[client] sent: [%s]. avg was: [%d] for density [%d]\n", buffer, sum, den);
         }
