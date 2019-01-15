@@ -400,6 +400,7 @@ void subserver(int client_socket, int shmid, int shmid2, int dim) {
     while (1) {
         int den = 0;
         if (*data2){
+            den = -1;
             sprintf(buffer, "%d", wait);
         }
         else {
@@ -419,28 +420,29 @@ void subserver(int client_socket, int shmid, int shmid2, int dim) {
         }
         write(client_socket, buffer, sizeof(buffer));
         read(client_socket, buffer, sizeof(buffer));
-        char str[1024];
-        strcpy(str,buffer);
-        const char delim[2] = ",";
-        char *token;
-        int *arr = (int*)calloc(2, sizeof(int));
-        int i = 0;
-        /* get the first token */
-        token = strtok(str, delim);
 
-        /* walk through other tokens */
-        while( token != NULL ) {
-            printf( "%s\n", token );
-            arr[i] = atoi(token);
-            i++;
+        if (*data2){
+            char str[1024];
+            strcpy(str,buffer);
+            const char delim[2] = ",";
+            char *token;
+            int *arr = (int*)calloc(2, sizeof(int));
+            int i = 0;
+            /* get the first token */
+            token = strtok(str, delim);
 
-            token = strtok(NULL, delim);
+            /* walk through other tokens */
+            while( token != NULL ) {
+                arr[i] = atoi(token);
+                i++;
+
+                token = strtok(NULL, delim);
+            }
+            int den_index = arr[0];
+            int result = arr[1];
+            free(arr);
+            data[den_index] = result;
         }
-        int den_index = arr[0];
-        int result = arr[1];
-        free(arr);
-        data[den_index] = result;
-
         //printf("received: [%s]. data2: [%d]\n", buffer, *data2);
     }
 
