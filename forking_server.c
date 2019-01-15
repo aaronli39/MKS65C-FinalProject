@@ -402,7 +402,7 @@ void run(int seed) {
                 else if (*data2 == 1){
                     sleep(1);
                     t = clock();
-                    printf(YEL "\nCalculating for Dimensions: %d across all densities...\n" RESET,dim);
+                    printf(YEL "\nCalculating for Dimensions: [%d by %d] across all densities...\n" RESET,dim, dim);
                     *data2 = 0;
                 }
                 else if (*data2 == 2){

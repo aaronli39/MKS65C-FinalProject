@@ -145,15 +145,16 @@ int main(int argc, char **argv) {
     server_socket = client_setup( TEST_IP );
     printf("Successfully connected to server. Waiting for others to connect...\n");
     while (read(server_socket, buffer, sizeof(buffer))) {
+
         int temp = atoi(buffer);
         if (temp == 1){
             sleep(1);
             sprintf(buffer, "%d", temp);
         }
         else {
-            int trials = 10;
+            int trials = 20;
             int i = 0;
-            int sum = 0;
+            float sum = 0;
             //printf("[client] received: [%s]\n", buffer);
 
             // change buffer into dim/den
@@ -161,7 +162,7 @@ int main(int argc, char **argv) {
             strcpy(str, buffer);
             const char delim[2] = ",";
             char *token;
-            int *arr = calloc(2, sizeof(int));
+            int *arr = (int*)calloc(2, sizeof(int));
             /* get the first token */
             token = strtok(str, delim);
 
@@ -174,19 +175,21 @@ int main(int argc, char **argv) {
             }
             int dim = arr[0];
             int den = arr[1];
-            printf("Density: %d%%\n",den);
+
+            printf("Density: %d%%\n\n",den);
             //printf("Calculating burn time for a %d by %d forest with %d%% density.",dim,dim,den);
             free(arr);
             //calculate here
             for (i = 0; i < trials; i++) {
                 sum += meanCalc(dim, den);
             } sum = sum / trials;
-            sprintf(buffer, "%d,%d", den, sum);
+            sprintf(buffer, "%d,%d", den, (int)sum);
             //printf("[client] sent: [%s]. avg was: [%d] for density [%d]\n", buffer, sum, den);
         }
         write(server_socket, buffer, sizeof(buffer));
-
     }//end read loop
+    close(server_socket);
+    exit(0);
 }
 
 // parser
